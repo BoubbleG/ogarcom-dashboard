@@ -25,7 +25,6 @@ FIELDS = ",".join([
     "cpc",
     "actions",
     "action_values",
-    "purchase_roas",
     "cost_per_action_type",
 ])
 
@@ -77,16 +76,13 @@ def process(raw):
     actions = raw.get("actions", [])
     action_values    = raw.get("action_values", [])
     cost_per_action  = raw.get("cost_per_action_type", [])
-    purchase_roas    = raw.get("purchase_roas", [])
 
     purchases          = get_action(actions, "purchase")
     initiate_checkout  = get_action(actions, "initiate_checkout")
     landing_page_views = get_action(actions, "landing_page_view")
     revenue            = get_action(action_values, "purchase")
 
-    roas = 0.0
-    if purchase_roas:
-        roas = safe_float(purchase_roas[0].get("value", 0))
+    roas  = safe_float(revenue / spend if spend > 0 else 0)
 
     lucro = safe_float(revenue - spend)
     roi   = safe_float((lucro / spend * 100) if spend > 0 else 0)
@@ -130,8 +126,11 @@ def main():
             result["contas"][name] = process(raw)
             print(f"  [OK] {name}")
         except Exception as e:
-            print(f"  [ERRO] {name}: {e}")
-            result["contas"][name] = {"erro": str(e)}
+            # Oculta token da mensagem de erro (segurança)
+            err_msg = str(e)
+            err_msg = err_msg.split("access_token=")[0].rstrip("?&") if "access_token=" in err_msg else err_msg
+            print(f"  [ERRO] {name}: {err_msg}")
+            result["contas"][name] = {"erro": err_msg}
 
     os.makedirs("data", exist_ok=True)
     with open("data/meta-ads.json", "w", encoding="utf-8") as f:
