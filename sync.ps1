@@ -4,7 +4,7 @@
 # ══════════════════════════════════════════════════════════
 
 $VAULT   = "G:\meu drive\ogarcom"
-$REPO    = "C:\Users\Fabricio\Downloads\ogarcom-dashboard"
+$REPO    = "G:\meu drive\ogarcom-dashboard"
 $PROJETOS = @("GESSEIRO-MASTER", "PINTOR-PRO", "SINDICO-PRO")
 
 Write-Host ""
