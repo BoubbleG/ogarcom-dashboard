@@ -1,15 +1,15 @@
 {
-  "atualizado": "2026-04-10T16:51:09Z",
+  "atualizado": "2026-04-10T17:01:10Z",
   "periodo": "last_30d",
   "contas": {
     "GESSEIRO-MASTER": {
-      "erro": "403 Client Error: Forbidden for url: https://graph.facebook.com/v19.0/act_899279936607772/insights?access_token=EAASF9crvUP4BRCMyBH4mgmFNCVffTZC1TN6T3w1E9TMSfj9cZAz5yZBIqIiZAoOTHop9eYmQHCz1WSfRtahT2FuGuuMW4FpIluJKUjsaRmW5pY991XUG3hCI5LGpkk9htYn8JDVfungj1tE9QGpTtTaWYO3MXd2mkWKkZCy6u0k9zguwea6Rp1NJpsLkRQgXh0VbnGxWKMywWmfZC28obZANxo11qQpZCSkehMLwUID3otatzeHego9nTjVZAH2YPmZAirB6ZBZAvVdZBlccF0nQiNto1SWRdOMPKp6tMMhsZD&fields=spend%2Cimpressions%2Cclicks%2Cctr%2Ccpm%2Ccpc%2Cactions%2Caction_values%2Cpurchase_roas%2Ccost_per_action_type&date_preset=last_30d&level=account"
+      "erro": "403 Client Error: Forbidden for url: https://graph.facebook.com/v19.0/act_899279936607772/insights?access_token=EAASF9crvUP4BRDbkExQzSCbiaBvbjz8rg4VSzqS2o3xESCM4fXZCl1TZC9cJ7CVPkL3jnZBAZCzbEblDl9zakojosXMXQrfkpWGRgvz3RZCcTQ0zZC2l7YwgDnmhSkx0m0IvPtPZCDhPb0tQPoH469Xt8zDD8ugXY9cZBlCjgZB7cYcMFiFY0EyTbunOEigEToj57ZBFlgWH7UuWgfTg3J2xa4IpoQ8GthZBrQchTLNG84TAwTYVjbwVO3PlvEBjXasMARbsLRZAfwMWhMxZAZAOyJbfJcU7viR6kaVUourwZDZD&fields=spend%2Cimpressions%2Cclicks%2Cctr%2Ccpm%2Ccpc%2Cactions%2Caction_values%2Cpurchase_roas%2Ccost_per_action_type&date_preset=last_30d&level=account"
     },
     "PINTOR-PRO": {
-      "erro": "403 Client Error: Forbidden for url: https://graph.facebook.com/v19.0/act_9785987753421230/insights?access_token=EAASF9crvUP4BRCMyBH4mgmFNCVffTZC1TN6T3w1E9TMSfj9cZAz5yZBIqIiZAoOTHop9eYmQHCz1WSfRtahT2FuGuuMW4FpIluJKUjsaRmW5pY991XUG3hCI5LGpkk9htYn8JDVfungj1tE9QGpTtTaWYO3MXd2mkWKkZCy6u0k9zguwea6Rp1NJpsLkRQgXh0VbnGxWKMywWmfZC28obZANxo11qQpZCSkehMLwUID3otatzeHego9nTjVZAH2YPmZAirB6ZBZAvVdZBlccF0nQiNto1SWRdOMPKp6tMMhsZD&fields=spend%2Cimpressions%2Cclicks%2Cctr%2Ccpm%2Ccpc%2Cactions%2Caction_values%2Cpurchase_roas%2Ccost_per_action_type&date_preset=last_30d&level=account"
+      "erro": "403 Client Error: Forbidden for url: https://graph.facebook.com/v19.0/act_9785987753421230/insights?access_token=EAASF9crvUP4BRDbkExQzSCbiaBvbjz8rg4VSzqS2o3xESCM4fXZCl1TZC9cJ7CVPkL3jnZBAZCzbEblDl9zakojosXMXQrfkpWGRgvz3RZCcTQ0zZC2l7YwgDnmhSkx0m0IvPtPZCDhPb0tQPoH469Xt8zDD8ugXY9cZBlCjgZB7cYcMFiFY0EyTbunOEigEToj57ZBFlgWH7UuWgfTg3J2xa4IpoQ8GthZBrQchTLNG84TAwTYVjbwVO3PlvEBjXasMARbsLRZAfwMWhMxZAZAOyJbfJcU7viR6kaVUourwZDZD&fields=spend%2Cimpressions%2Cclicks%2Cctr%2Ccpm%2Ccpc%2Cactions%2Caction_values%2Cpurchase_roas%2Ccost_per_action_type&date_preset=last_30d&level=account"
     },
     "SINDICO-PRO": {
-      "erro": "403 Client Error: Forbidden for url: https://graph.facebook.com/v19.0/act_886430698524276/insights?access_token=EAASF9crvUP4BRCMyBH4mgmFNCVffTZC1TN6T3w1E9TMSfj9cZAz5yZBIqIiZAoOTHop9eYmQHCz1WSfRtahT2FuGuuMW4FpIluJKUjsaRmW5pY991XUG3hCI5LGpkk9htYn8JDVfungj1tE9QGpTtTaWYO3MXd2mkWKkZCy6u0k9zguwea6Rp1NJpsLkRQgXh0VbnGxWKMywWmfZC28obZANxo11qQpZCSkehMLwUID3otatzeHego9nTjVZAH2YPmZAirB6ZBZAvVdZBlccF0nQiNto1SWRdOMPKp6tMMhsZD&fields=spend%2Cimpressions%2Cclicks%2Cctr%2Ccpm%2Ccpc%2Cactions%2Caction_values%2Cpurchase_roas%2Ccost_per_action_type&date_preset=last_30d&level=account"
+      "erro": "403 Client Error: Forbidden for url: https://graph.facebook.com/v19.0/act_886430698524276/insights?access_token=EAASF9crvUP4BRDbkExQzSCbiaBvbjz8rg4VSzqS2o3xESCM4fXZCl1TZC9cJ7CVPkL3jnZBAZCzbEblDl9zakojosXMXQrfkpWGRgvz3RZCcTQ0zZC2l7YwgDnmhSkx0m0IvPtPZCDhPb0tQPoH469Xt8zDD8ugXY9cZBlCjgZB7cYcMFiFY0EyTbunOEigEToj57ZBFlgWH7UuWgfTg3J2xa4IpoQ8GthZBrQchTLNG84TAwTYVjbwVO3PlvEBjXasMARbsLRZAfwMWhMxZAZAOyJbfJcU7viR6kaVUourwZDZD&fields=spend%2Cimpressions%2Cclicks%2Cctr%2Ccpm%2Ccpc%2Cactions%2Caction_values%2Cpurchase_roas%2Ccost_per_action_type&date_preset=last_30d&level=account"
     }
   }
 }
