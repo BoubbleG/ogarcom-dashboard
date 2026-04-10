@@ -86,6 +86,12 @@
     .btn-det { width:100%;padding:.7rem;background:var(--surface-highest);color:var(--on-surface);font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;border-radius:6px;border:1px solid rgba(72,71,76,.2);transition:background .2s,color .2s; }
     .btn-det:hover { background:var(--primary);color:var(--surface); }
 
+    /* PERIOD SELECTOR */
+    .period-selector { display:flex; gap:.4rem; }
+    .period-btn { font-size:.6rem; font-weight:700; text-transform:uppercase; letter-spacing:.1em; padding:.35rem .8rem; border-radius:6px; background:var(--surface-highest); color:var(--on-surface-variant); border:1px solid var(--outline-faint); transition:all .2s; cursor:pointer; }
+    .period-btn:hover { background:var(--surface-bright,#2c2b32); color:var(--on-surface); }
+    .period-btn.active { background:var(--primary); color:var(--surface); border-color:var(--primary); }
+
     /* PIPELINE */
     .pipeline-wrap { background:rgba(19,19,23,.5);border:1px solid var(--outline-faint);border-radius:1rem;padding:2rem;position:relative;overflow:hidden; }
     .pip-bg { position:absolute;top:1.5rem;right:1.5rem;opacity:.04;color:var(--primary); }
@@ -317,7 +323,13 @@
         <div class="sec-label">Tráfego Pago</div>
         <h2>Meta Ads Performance</h2>
       </div>
-      <span id="ads-periodo" style="font-size:.55rem;font-weight:700;text-transform:uppercase;letter-spacing:.3em;color:var(--on-surface-variant)">Últimos 30 dias</span>
+      <div class="period-selector">
+        <button class="period-btn" onclick="setPeriod('hoje',this)">Hoje</button>
+        <button class="period-btn" onclick="setPeriod('ontem',this)">Ontem</button>
+        <button class="period-btn" onclick="setPeriod('3d',this)">3 Dias</button>
+        <button class="period-btn" onclick="setPeriod('7d',this)">7 Dias</button>
+        <button class="period-btn active" onclick="setPeriod('30d',this)">30 Dias</button>
+      </div>
     </div>
     <div class="ads-grid" id="ads-grid">
       <div class="empty-state" style="grid-column:1/-1"><span>Carregando dados do Meta Ads...</span></div>
@@ -536,15 +548,19 @@
         <div class="d-sec">
           <div class="d-sec-head"><h4>Campanhas Ativas</h4></div>
           <div class="tbl-wrap">
-            <table class="dtbl"><thead><tr><th>Campanha</th><th>Objetivo</th><th>Verba/dia</th><th>Status</th></tr></thead>
-            <tbody><tr><td colspan="4"><div class="empty-state"><span>Nenhuma campanha registrada</span><p>Preencha Campanhas/CAMPANHAS.md no vault</p></div></td></tr></tbody></table>
+            <table class="dtbl">
+              <thead><tr><th>Campanha</th><th>Status</th><th>Gasto</th><th>ROAS</th><th>Vendas</th><th>CTR</th><th>CPA</th></tr></thead>
+              <tbody class="camp-ativas-body"><tr><td colspan="7"><div class="empty-state"><span>Carregando...</span></div></td></tr></tbody>
+            </table>
           </div>
         </div>
         <div class="d-sec">
           <div class="d-sec-head"><h4>Campanhas Pausadas</h4></div>
           <div class="tbl-wrap">
-            <table class="dtbl"><thead><tr><th>Campanha</th><th>Motivo</th><th>Data</th></tr></thead>
-            <tbody><tr><td colspan="3"><div class="empty-state"><span>Nenhuma pausada</span></div></td></tr></tbody></table>
+            <table class="dtbl">
+              <thead><tr><th>Campanha</th><th>Status</th><th>Gasto</th><th>ROAS</th><th>Vendas</th><th>CTR</th><th>CPA</th></tr></thead>
+              <tbody class="camp-pausadas-body"><tr><td colspan="7"><div class="empty-state"><span>Carregando...</span></div></td></tr></tbody>
+            </table>
           </div>
         </div>
       </div>
@@ -626,18 +642,25 @@
       <!-- ANÁLISES -->
       <div id="t-anal" class="tab-pnl">
         <div class="d-sec">
-          <div class="d-sec-head"><h4>Métricas Principais</h4></div>
+          <div class="d-sec-head"><h4>Métricas Principais</h4><span style="font-size:.55rem;color:var(--on-surface-variant)">Últimos 30 dias</span></div>
           <div class="m3">
-            <div class="mcard"><div class="mlbl">Custo por Venda</div><div class="mval" style="font-size:1.2rem">—</div><div class="mtrend">Preencha ANALISES.md</div></div>
-            <div class="mcard"><div class="mlbl">ROAS</div><div class="mval" style="font-size:1.2rem">—</div><div class="mtrend">Preencha ANALISES.md</div></div>
-            <div class="mcard"><div class="mlbl">Vendas Totais</div><div class="mval gv" style="font-size:1.2rem">—</div><div class="mtrend">Preencha ANALISES.md</div></div>
+            <div class="mcard"><div class="mlbl">CPA (Custo por Venda)</div><div class="mval" id="m-cpa" style="font-size:1.2rem">—</div><div class="mtrend">custo / venda aprovada</div></div>
+            <div class="mcard"><div class="mlbl">ROAS</div><div class="mval" id="m-roas" style="font-size:1.2rem">—</div><div class="mtrend">retorno sobre anúncios</div></div>
+            <div class="mcard"><div class="mlbl">Vendas Aprovadas</div><div class="mval gv" id="m-vendas" style="font-size:1.2rem">—</div><div class="mtrend" id="m-vendas-trend">pedidos aprovados</div></div>
+          </div>
+          <div class="m3" style="margin-top:.75rem">
+            <div class="mcard"><div class="mlbl">Gasto Total</div><div class="mval" id="m-gasto" style="font-size:1.2rem">—</div><div class="mtrend">investimento em anúncios</div></div>
+            <div class="mcard"><div class="mlbl">Receita</div><div class="mval gv" id="m-receita" style="font-size:1.2rem">—</div><div class="mtrend">receita aprovada</div></div>
+            <div class="mcard"><div class="mlbl">Lucro</div><div class="mval" id="m-lucro" style="font-size:1.2rem">—</div><div class="mtrend" id="m-lucro-trend">—</div></div>
           </div>
         </div>
         <div class="d-sec">
-          <div class="d-sec-head"><h4>Histórico de Resultados</h4></div>
+          <div class="d-sec-head"><h4>Comparativo por Período</h4></div>
           <div class="tbl-wrap">
-            <table class="dtbl"><thead><tr><th>Período</th><th>Vendas</th><th>Investimento</th><th>Lucro</th><th>ROAS</th></tr></thead>
-            <tbody><tr><td colspan="5"><div class="empty-state"><span>Sem dados</span><p>Preencha Analises/ANALISES.md</p></div></td></tr></tbody></table>
+            <table class="dtbl">
+              <thead><tr><th>Período</th><th>Vendas</th><th>Investimento</th><th>Lucro</th><th>ROAS</th></tr></thead>
+              <tbody class="anal-hist-body"><tr><td colspan="5"><div class="empty-state"><span>Carregando...</span></div></td></tr></tbody>
+            </table>
           </div>
         </div>
       </div>
@@ -842,6 +865,15 @@ function parseSessionLog(md, filename) {
 let PROJECTS = PROJECT_IDS.map(p => ({
   ...p, progress:0, funilStages:[], pendencias:[], rawFiles:{}
 }));
+let ADS_DATA      = null;
+let ACTIVE_PERIOD = '30d';
+
+function setPeriod(period, btn) {
+  ACTIVE_PERIOD = period;
+  document.querySelectorAll('.period-btn').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  if (ADS_DATA) renderMetaAds(ADS_DATA, period);
+}
 
 // ══════════════════════════════════════════════════════════════
 // CARREGAMENTO DOS DADOS
@@ -894,7 +926,7 @@ async function loadAllData() {
   document.querySelector('.global-num').textContent = globalPct + '%';
 
   // Meta Ads
-  const metaAds = await fetchJson('data/meta-ads.json');
+  ADS_DATA = await fetchJson('data/meta-ads.json');
 
   // Render tudo
   renderProjects();
@@ -903,7 +935,7 @@ async function loadAllData() {
   renderSessionLogs(SESSION_LOGS);
   renderMemory(SESSION_LOGS);
   renderConhecimento();
-  renderMetaAds(metaAds);
+  renderMetaAds(ADS_DATA, ACTIVE_PERIOD);
   lucide.createIcons();
   showLoading(false);
 }
@@ -913,45 +945,52 @@ function fmt(val, prefix='', suffix='') {
   return prefix + Number(val).toLocaleString('pt-BR', {maximumFractionDigits:2}) + suffix;
 }
 
-function renderMetaAds(data) {
+const PERIOD_LABELS = { hoje:'Hoje', ontem:'Ontem', '3d':'3 Dias', '7d':'7 Dias', '30d':'30 Dias' };
+const PROJECT_MAP   = { 'GESSEIRO-MASTER':'Gesseiro Master', 'PINTOR-PRO':'Pintor Pro', 'SINDICO-PRO':'Síndico Pro' };
+
+function renderMetaAds(data, period) {
   const el = document.getElementById('ads-grid');
-  if (!data || !data.contas) {
-    el.innerHTML = `<div class="empty-state" style="grid-column:1/-1"><span>Sem dados</span><p>O workflow do GitHub Actions ainda não rodou.<br>Acesse Actions → "Fetch Meta Ads Data" → Run workflow.</p></div>`;
+  if (!data) {
+    el.innerHTML = `<div class="empty-state" style="grid-column:1/-1"><span>Sem dados</span><p>Rode o SINCRONIZAR.bat para atualizar.</p></div>`;
     return;
   }
 
-  const projectMap = {
-    'GESSEIRO-MASTER': 'Gesseiro Master',
-    'PINTOR-PRO':      'Pintor Pro',
-    'SINDICO-PRO':     'Sindico Pro',
-  };
+  // Pega contas do período selecionado (ou fallback para contas legado)
+  const contas = (data.periodos && data.periodos[period]) ? data.periodos[period] : data.contas;
+  if (!contas) {
+    el.innerHTML = `<div class="empty-state" style="grid-column:1/-1"><span>Período indisponível</span><p>Rode o SINCRONIZAR.bat para gerar dados de todos os períodos.</p></div>`;
+    return;
+  }
 
   const updated = data.atualizado ? new Date(data.atualizado).toLocaleString('pt-BR') : '—';
 
-  el.innerHTML = Object.entries(data.contas).map(([id, m]) => {
-    if (m.erro) return `
+  el.innerHTML = Object.entries(contas).map(([id, m]) => {
+    if (!m || m.erro) return `
       <div class="ads-card">
         <div class="ads-card-header">
-          <div class="ads-card-title">${projectMap[id] || id}</div>
+          <div class="ads-card-title">${PROJECT_MAP[id]||id}</div>
           <span class="ads-badge" style="background:rgba(255,110,132,.1);color:var(--error)">Erro</span>
         </div>
-        <div class="empty-state"><span>Falha ao buscar dados</span><p>${m.erro}</p></div>
+        <div class="empty-state"><span>Sem dados neste período</span></div>
       </div>`;
 
-    const lucroCls = m.lucro >= 0 ? 'green' : 'red';
-    const roiCls   = m.roi   >= 0 ? 'green' : 'red';
+    const lc = m.lucro >= 0 ? 'green' : 'red';
+    const rc = m.roi   >= 0 ? 'green' : 'red';
+    const cpv = m.visitas_pagina > 0 ? fmt(m.gasto / m.visitas_pagina) : '—';
+    const cpi = m.initiate_checkout > 0 ? fmt(m.gasto / m.initiate_checkout) : '—';
+    const icr = (m.initiate_checkout > 0 && m.vendas > 0) ? fmt(m.vendas / m.initiate_checkout * 100) : '—';
 
     return `
       <div class="ads-card">
         <div class="ads-card-header">
-          <div class="ads-card-title">${projectMap[id] || id}</div>
-          <span class="ads-badge">30 dias</span>
+          <div class="ads-card-title">${PROJECT_MAP[id]||id}</div>
+          <span class="ads-badge">${PERIOD_LABELS[period]||period}</span>
         </div>
         <div class="ads-metrics-grid">
           <div class="ads-divider">💰 Financeiro</div>
           <div class="ads-metric"><div class="ads-metric-val">R$ ${fmt(m.gasto)}</div><div class="ads-metric-lbl">Gastos</div></div>
-          <div class="ads-metric"><div class="ads-metric-val ${lucroCls}">R$ ${fmt(m.lucro)}</div><div class="ads-metric-lbl">Lucro</div></div>
-          <div class="ads-metric"><div class="ads-metric-val ${roiCls}">${fmt(m.roi)}%</div><div class="ads-metric-lbl">ROI</div></div>
+          <div class="ads-metric"><div class="ads-metric-val ${lc}">R$ ${fmt(m.lucro)}</div><div class="ads-metric-lbl">Lucro</div></div>
+          <div class="ads-metric"><div class="ads-metric-val ${rc}">${fmt(m.roi)}%</div><div class="ads-metric-lbl">ROI</div></div>
           <div class="ads-metric"><div class="ads-metric-val">${fmt(m.roas)}x</div><div class="ads-metric-lbl">ROAS</div></div>
           <div class="ads-metric"><div class="ads-metric-val">R$ ${fmt(m.cpa)}</div><div class="ads-metric-lbl">CPA</div></div>
           <div class="ads-metric"><div class="ads-metric-val">${fmt(m.vendas)}</div><div class="ads-metric-lbl">Vendas</div></div>
@@ -965,10 +1004,10 @@ function renderMetaAds(data) {
           <div class="ads-metric"><div class="ads-metric-val">${fmt(m.visitas_pagina)}</div><div class="ads-metric-lbl">Visitas</div></div>
 
           <div class="ads-divider">🎯 Conversão</div>
-          <div class="ads-metric"><div class="ads-metric-val">R$ ${fmt(m.cpv)}</div><div class="ads-metric-lbl">CPV</div></div>
+          <div class="ads-metric"><div class="ads-metric-val">R$ ${cpv}</div><div class="ads-metric-lbl">CPV</div></div>
           <div class="ads-metric"><div class="ads-metric-val">${fmt(m.initiate_checkout)}</div><div class="ads-metric-lbl">Init. Checkout</div></div>
-          <div class="ads-metric"><div class="ads-metric-val">R$ ${fmt(m.cpi)}</div><div class="ads-metric-lbl">CPI</div></div>
-          <div class="ads-metric"><div class="ads-metric-val">${fmt(m.icr)}%</div><div class="ads-metric-lbl">ICR</div></div>
+          <div class="ads-metric"><div class="ads-metric-val">R$ ${cpi}</div><div class="ads-metric-lbl">CPI</div></div>
+          <div class="ads-metric"><div class="ads-metric-val">${icr}%</div><div class="ads-metric-lbl">ICR</div></div>
         </div>
         <div class="ads-updated">Atualizado: ${updated}</div>
       </div>`;
@@ -1113,12 +1152,38 @@ function openDrawer(id) {
         </div>`).join('')
     : '<div class="empty-state"><span>Sem pendências</span></div>';
 
-  // Campanhas
-  if (currentProject.rawFiles.camp) {
+  // Campanhas — UTMify real data (fallback to vault markdown)
+  const campContainer = document.getElementById('t-camp');
+  const ativasBody    = campContainer.querySelector('.camp-ativas-body');
+  const pausadasBody  = campContainer.querySelector('.camp-pausadas-body');
+  const campEmpty7 = n => `<tr><td colspan="7"><div class="empty-state"><span>${n}</span></div></td></tr>`;
+
+  if (ADS_DATA && ADS_DATA.campanhas && ADS_DATA.campanhas[currentProject.id]) {
+    const allCamp  = ADS_DATA.campanhas[currentProject.id];
+    const ativas   = allCamp.filter(c => c.status === 'ACTIVE');
+    const pausadas = allCamp.filter(c => c.status !== 'ACTIVE');
+    const campRow  = c => `<tr>
+      <td style="max-width:220px;word-break:break-word">${c.nome}</td>
+      <td><span class="sbadge ${c.status==='ACTIVE'?'sg':'sy'}">${c.status==='ACTIVE'?'ATIVA':'PAUSADA'}</span></td>
+      <td>R$ ${fmt(c.gasto)}</td>
+      <td>${fmt(c.roas)}x</td>
+      <td>${fmt(c.vendas)}</td>
+      <td>${fmt(c.ctr)}%</td>
+      <td>R$ ${fmt(c.cpa)}</td>
+    </tr>`;
+    ativasBody.innerHTML   = ativas.length   ? ativas.map(campRow).join('')   : campEmpty7('Nenhuma campanha ativa');
+    pausadasBody.innerHTML = pausadas.length ? pausadas.map(campRow).join('') : campEmpty7('Nenhuma campanha pausada');
+  } else if (currentProject.rawFiles.camp) {
     const { ativas, pausadas } = parseCampanhas(currentProject.rawFiles.camp);
-    document.querySelector('#t-camp tbody:first-of-type').innerHTML = ativas.length
-      ? ativas.map(r=>`<tr><td>${r['Campanha']||'—'}</td><td>${r['Objetivo']||'—'}</td><td>${r['Verba/dia']||'—'}</td><td><span class="sbadge sp">${r['Status']||'—'}</span></td></tr>`).join('')
-      : `<tr><td colspan="4"><div class="empty-state"><span>Nenhuma campanha ativa</span><p>Preencha Campanhas/CAMPANHAS.md no vault</p></div></td></tr>`;
+    ativasBody.innerHTML   = ativas.length
+      ? ativas.map(r=>`<tr><td>${r['Campanha']||'—'}</td><td><span class="sbadge sp">${r['Status']||'—'}</span></td><td>${r['Verba/dia']||'—'}</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>`).join('')
+      : campEmpty7('Nenhuma campanha ativa');
+    pausadasBody.innerHTML = pausadas.length
+      ? pausadas.map(r=>`<tr><td>${r['Campanha']||'—'}</td><td><span class="sbadge sy">PAUSADA</span></td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>`).join('')
+      : campEmpty7('Nenhuma campanha pausada');
+  } else {
+    ativasBody.innerHTML   = campEmpty7('Sem dados — rode SINCRONIZAR.bat');
+    pausadasBody.innerHTML = campEmpty7('Sem dados');
   }
 
   // Copy
@@ -1142,17 +1207,49 @@ function openDrawer(id) {
     }
   }
 
-  // Análises
-  if (currentProject.rawFiles.anal) {
+  // Análises — UTMify real data (fallback to vault markdown)
+  const proj30d = ADS_DATA?.periodos?.['30d']?.[currentProject.id];
+  if (proj30d) {
+    const lc = proj30d.lucro >= 0 ? 'gv' : '';
+    document.getElementById('m-cpa').textContent     = `R$ ${fmt(proj30d.cpa)}`;
+    document.getElementById('m-roas').textContent    = `${fmt(proj30d.roas)}x`;
+    document.getElementById('m-vendas').textContent  = fmt(proj30d.vendas);
+    document.getElementById('m-vendas-trend').textContent = `${fmt(proj30d.total_pedidos)} pedidos totais`;
+    document.getElementById('m-gasto').textContent   = `R$ ${fmt(proj30d.gasto)}`;
+    document.getElementById('m-receita').textContent = `R$ ${fmt(proj30d.receita)}`;
+    const lucroEl = document.getElementById('m-lucro');
+    lucroEl.textContent = `R$ ${fmt(proj30d.lucro)}`;
+    lucroEl.className   = `mval ${lc}`;
+    lucroEl.style.fontSize = '1.2rem';
+    document.getElementById('m-lucro-trend').textContent = `ROI: ${fmt(proj30d.roi)}%`;
+
+    // Histórico por período (todas as janelas disponíveis)
+    const PERIODOS = [
+      {label:'Hoje',    key:'hoje'},
+      {label:'Ontem',   key:'ontem'},
+      {label:'3 Dias',  key:'3d'},
+      {label:'7 Dias',  key:'7d'},
+      {label:'30 Dias', key:'30d'},
+    ];
+    document.querySelector('.anal-hist-body').innerHTML = PERIODOS.map(p => {
+      const d = ADS_DATA.periodos?.[p.key]?.[currentProject.id];
+      if (!d) return `<tr><td>${p.label}</td><td colspan="4" style="color:var(--on-surface-variant);font-size:.7rem;text-align:center">sem dados</td></tr>`;
+      const luc = d.lucro >= 0 ? 'sg' : 'sr';
+      return `<tr>
+        <td>${p.label}</td>
+        <td>${fmt(d.vendas)}</td>
+        <td>R$ ${fmt(d.gasto)}</td>
+        <td class="${luc}">R$ ${fmt(d.lucro)}</td>
+        <td>${fmt(d.roas)}x</td>
+      </tr>`;
+    }).join('');
+  } else if (currentProject.rawFiles.anal) {
     const { metrics, hist } = parseAnalises(currentProject.rawFiles.anal);
-    const cpv  = document.getElementById('m-cpv')  || document.querySelector('#t-anal .mval');
-    const roas = document.getElementById('m-roas');
-    const vnd  = document.getElementById('m-vendas');
-    if (cpv  && metrics['Custo por venda'])  { cpv.textContent  = metrics['Custo por venda'];  cpv.style.fontSize='1.2rem'; }
-    if (roas && metrics['ROAS'])             { roas.textContent = metrics['ROAS'];              }
-    if (vnd  && metrics['Vendas totais'])    { vnd.textContent  = metrics['Vendas totais'];     }
+    if (metrics['Custo por venda'])  { const e=document.getElementById('m-cpa');    if(e) e.textContent=metrics['Custo por venda']; }
+    if (metrics['ROAS'])             { const e=document.getElementById('m-roas');   if(e) e.textContent=metrics['ROAS']; }
+    if (metrics['Vendas totais'])    { const e=document.getElementById('m-vendas'); if(e) e.textContent=metrics['Vendas totais']; }
     if (hist.length) {
-      document.querySelector('#t-anal tbody').innerHTML = hist.map(r =>
+      document.querySelector('.anal-hist-body').innerHTML = hist.map(r =>
         `<tr><td>${r['Periodo']||'—'}</td><td>${r['Vendas']||'—'}</td><td>${r['Investimento']||'—'}</td><td>${r['Lucro']||'—'}</td><td>${r['ROAS']||'—'}</td></tr>`
       ).join('');
     }
