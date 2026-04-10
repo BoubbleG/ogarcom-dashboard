@@ -1,0 +1,1091 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>OGARCOM — Central de Controle</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+  <style>
+    :root {
+      --surface:            #0e0e12;
+      --surface-low:        #131317;
+      --surface-mid:        #19191e;
+      --surface-high:       #1f1f24;
+      --surface-highest:    #25252b;
+      --primary:            #bd9dff;
+      --primary-dim:        #8a4cfc;
+      --primary-glow:       rgba(189,157,255,0.15);
+      --tertiary:           #c5ffc9;
+      --tertiary-dim:       #5bf083;
+      --error:              #ff6e84;
+      --warn:               #f59e0b;
+      --on-surface:         #fcf8fe;
+      --on-surface-variant: #acaab0;
+      --outline-variant:    #48474c;
+      --outline-faint:      rgba(72,71,76,0.15);
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Inter', sans-serif; background: var(--surface); color: var(--on-surface); -webkit-font-smoothing: antialiased; min-height: 100vh; }
+    button { font-family: inherit; cursor: pointer; border: none; background: none; }
+    table { border-collapse: collapse; width: 100%; }
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background: var(--surface); }
+    ::-webkit-scrollbar-thumb { background: rgba(72,71,76,0.4); border-radius: 99px; }
+
+    /* HEADER */
+    header {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 50;
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 1rem 3rem;
+      background: rgba(19,19,23,0.75);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--outline-faint);
+    }
+    .header-left { display: flex; align-items: center; gap: 2.5rem; }
+    .logo { font-size: 1.4rem; font-weight: 900; letter-spacing: -0.04em; color: var(--primary); }
+    nav a { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.15em; color: var(--on-surface-variant); margin-right: 2rem; transition: color .2s; text-decoration: none; }
+    nav a.active { color: var(--primary); border-bottom: 2px solid var(--primary); padding-bottom: 2px; }
+    nav a:hover { color: var(--on-surface); }
+    .header-right { display: flex; align-items: center; gap: 1.5rem; }
+    .h-ctrl { font-size: 0.7rem; font-weight: 700; color: var(--primary); }
+    .h-badge { background: rgba(189,157,255,0.1); color: var(--primary); font-size: 0.5rem; font-weight: 700; letter-spacing: .15em; text-transform: uppercase; padding: 2px 8px; border-radius: 99px; margin-top: 2px; display: block; }
+    .btn-new { background: linear-gradient(135deg,var(--primary),var(--primary-dim)); color: var(--surface); font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: .1em; padding: .5rem 1.2rem; border-radius: 6px; transition: transform .15s; }
+    .btn-new:hover { transform: scale(.96); }
+    .avatar-wrap { width:40px;height:40px;border-radius:50%;background:var(--surface-highest);border:1px solid rgba(72,71,76,.3);display:flex;align-items:center;justify-content:center; }
+
+    /* MAIN */
+    main { padding-top: 7rem; padding-bottom: 5rem; padding-left: 3rem; padding-right: 3rem; max-width: 90rem; margin: 0 auto; }
+    section { margin-bottom: 5rem; }
+
+    /* SECTION HEADER */
+    .sec-head { display: flex; align-items: flex-end; justify-content: space-between; margin-bottom: 2.5rem; gap: 1rem; }
+    .sec-head h2 { font-size: 2.2rem; font-weight: 900; letter-spacing: -0.03em; }
+    .sec-label { font-size: 0.6rem; font-weight: 700; text-transform: uppercase; letter-spacing: .2em; color: var(--on-surface-variant); margin-bottom: .4rem; }
+    .sec-label.purple { color: var(--primary); }
+    .global-num { font-size: 3rem; font-weight: 900; color: var(--primary); letter-spacing: -0.05em; line-height: 1; }
+    .global-sub { font-size: 0.5rem; font-weight: 700; text-transform: uppercase; letter-spacing: .25em; color: var(--on-surface-variant); }
+
+    /* PROJECT CARDS */
+    .projects-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 1.5rem; }
+    .project-card { background: var(--surface-low); border: 1px solid var(--outline-faint); border-radius: .75rem; padding: 1.5rem; transition: transform .25s, box-shadow .25s; }
+    .project-card:hover { transform: translateY(-4px); box-shadow: 0 8px 30px rgba(189,157,255,.1); }
+    .card-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.5rem; }
+    .card-badge-active { font-size:.5rem;font-weight:700;text-transform:uppercase;letter-spacing:.15em;color:var(--tertiary-dim);background:rgba(91,240,131,.08);padding:3px 8px;border-radius:4px;margin-bottom:.5rem;display:inline-block; }
+    .card-title { font-size:1.15rem;font-weight:800;letter-spacing:-.02em;margin-bottom:.2rem;transition:color .2s; }
+    .project-card:hover .card-title { color: var(--primary); }
+    .card-niche { font-size:.7rem;color:var(--on-surface-variant); }
+    .card-counter { font-size:1.6rem;font-weight:900;line-height:1; }
+    .card-counter span { font-size:.8rem;font-weight:500;color:var(--on-surface-variant); }
+    .prog-label { display:flex;justify-content:space-between;font-size:.6rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--on-surface-variant);margin-bottom:.4rem; }
+    .prog-label span:last-child { color:var(--on-surface); }
+    .prog-bar { display:flex;gap:3px;height:6px;margin-bottom:.5rem; }
+    .prog-seg { flex:1;border-radius:99px;background:var(--surface-highest); }
+    .prog-seg.on { background:var(--primary); }
+    .stage-lbls { display:grid;grid-template-columns:repeat(6,1fr);gap:2px;text-align:center;font-size:.42rem;font-weight:700;text-transform:uppercase;color:var(--on-surface-variant);margin-bottom:1.5rem; }
+    .btn-det { width:100%;padding:.7rem;background:var(--surface-highest);color:var(--on-surface);font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;border-radius:6px;border:1px solid rgba(72,71,76,.2);transition:background .2s,color .2s; }
+    .btn-det:hover { background:var(--primary);color:var(--surface); }
+
+    /* PIPELINE */
+    .pipeline-wrap { background:rgba(19,19,23,.5);border:1px solid var(--outline-faint);border-radius:1rem;padding:2rem;position:relative;overflow:hidden; }
+    .pip-bg { position:absolute;top:1.5rem;right:1.5rem;opacity:.04;color:var(--primary); }
+    .pip-head { margin-bottom:3rem; }
+    .pip-head h3 { font-size:1.4rem;font-weight:900;letter-spacing:-.02em;margin-bottom:.25rem; }
+    .pip-head p { font-size:.8rem;color:var(--on-surface-variant); }
+    .pip-track { position:relative;padding:0 1rem; }
+    .pip-line { position:absolute;top:20px;left:0;right:0;height:2px;background:rgba(72,71,76,.25);z-index:0; }
+    .pip-fill { position:absolute;top:20px;left:0;width:83%;height:2px;background:var(--primary);z-index:1; }
+    .pip-stages { display:flex;justify-content:space-between;position:relative;z-index:2; }
+    .pip-stage { display:flex;flex-direction:column;align-items:center;gap:1rem; }
+    .pip-icon { width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center; }
+    .pip-icon.done { background:var(--primary);color:var(--surface);box-shadow:0 0 20px rgba(189,157,255,.4); }
+    .pip-icon.pend { background:var(--surface-highest);border:2px solid var(--outline-variant);color:var(--on-surface-variant); }
+    .pip-lbl { text-align:center; }
+    .pip-num { display:block;font-size:.5rem;font-weight:700;text-transform:uppercase;letter-spacing:.2em; }
+    .pip-num.done { color:var(--primary); } .pip-num.pend { color:var(--on-surface-variant); }
+    .pip-name { font-size:.8rem;font-weight:700; }
+    .pip-name.done { color:var(--on-surface); } .pip-name.pend { color:var(--on-surface-variant); }
+
+    /* SKILLS */
+    .skills-head { display:flex;align-items:center;justify-content:space-between;margin-bottom:2.5rem;padding-bottom:1.5rem;border-bottom:1px solid rgba(72,71,76,.1); }
+    .skills-head h2 { font-size:1.8rem;font-weight:900;letter-spacing:-.02em; }
+    .skills-group-label { font-size:.55rem;font-weight:700;text-transform:uppercase;letter-spacing:.25em;color:var(--on-surface-variant);margin-bottom:.75rem;margin-top:1.5rem; }
+    .skills-grid { display:grid;grid-template-columns:repeat(5,1fr);gap:.75rem; }
+    .skills-grid.sistema { grid-template-columns:repeat(4,1fr); }
+    .skill-card { background:var(--surface-low);border:1px solid var(--outline-faint);border-radius:.75rem;padding:1rem;cursor:default;transition:border-color .3s,box-shadow .3s; }
+    .skill-card:hover { border-color:rgba(189,157,255,.4);box-shadow:0 0 20px rgba(189,157,255,.1); }
+    .skill-card.sistema-card { border-color:rgba(91,240,131,.08); }
+    .skill-card.sistema-card:hover { border-color:rgba(91,240,131,.3); }
+    .sk-top { display:flex;align-items:center;gap:.75rem;margin-bottom:.6rem; }
+    .sk-code { width:36px;height:36px;border-radius:8px;background:rgba(189,157,255,.08);display:flex;align-items:center;justify-content:center;color:var(--primary);font-size:.55rem;font-weight:900;flex-shrink:0;transition:background .2s,color .2s; }
+    .skill-card:hover .sk-code { background:var(--primary);color:var(--surface); }
+    .skill-card.sistema-card .sk-code { background:rgba(91,240,131,.08);color:var(--tertiary-dim); }
+    .skill-card.sistema-card:hover .sk-code { background:var(--tertiary-dim);color:var(--surface); }
+    .sk-name { font-size:.65rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em; }
+    .sk-desc { font-size:.6rem;color:var(--on-surface-variant);line-height:1.6; }
+
+    /* SESSION LOGS + MEMORY — 2 col */
+    .two-col { display:grid;grid-template-columns:1.6fr 1fr;gap:1.5rem; }
+
+    /* PANEL CARD */
+    .panel { background:var(--surface-low);border:1px solid var(--outline-faint);border-radius:.75rem;padding:1.5rem; }
+    .panel-head { display:flex;align-items:center;gap:.75rem;margin-bottom:1.5rem; }
+    .panel-icon { width:36px;height:36px;border-radius:8px;background:var(--primary-glow);display:flex;align-items:center;justify-content:center;color:var(--primary);flex-shrink:0; }
+    .panel-icon.green { background:rgba(91,240,131,.1);color:var(--tertiary-dim); }
+    .panel-icon.warn { background:rgba(245,158,11,.1);color:var(--warn); }
+    .panel-title { font-size:1rem;font-weight:800;letter-spacing:-.01em; }
+    .panel-sub { font-size:.6rem;color:var(--on-surface-variant); }
+
+    /* SESSION LOG ITEMS */
+    .log-item { padding:.9rem 1rem;border-radius:.5rem;border:1px solid var(--outline-faint);margin-bottom:.6rem;background:var(--surface-mid);cursor:default;transition:border-color .2s; }
+    .log-item:hover { border-color:rgba(189,157,255,.3); }
+    .log-item:last-child { margin-bottom:0; }
+    .log-date { font-size:.55rem;font-weight:700;text-transform:uppercase;letter-spacing:.15em;color:var(--primary);margin-bottom:.3rem; }
+    .log-title { font-size:.85rem;font-weight:700;margin-bottom:.3rem; }
+    .log-desc { font-size:.7rem;color:var(--on-surface-variant);line-height:1.5; }
+    .log-tags { display:flex;gap:.4rem;margin-top:.5rem;flex-wrap:wrap; }
+    .log-tag { font-size:.5rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;padding:2px 7px;border-radius:99px;background:rgba(189,157,255,.08);color:var(--primary); }
+
+    /* MEMORY STATUS */
+    .mem-row { display:flex;align-items:center;justify-content:space-between;padding:.7rem 0;border-bottom:1px solid var(--outline-faint); }
+    .mem-row:last-child { border-bottom:none; }
+    .mem-key { font-size:.65rem;font-weight:600;color:var(--on-surface-variant); }
+    .mem-val { font-size:.65rem;font-weight:700; }
+    .mem-val.ok { color:var(--tertiary-dim); }
+    .mem-val.warn { color:var(--warn); }
+    .mem-val.pend { color:var(--error); }
+    .mem-health-bar { height:4px;border-radius:99px;background:var(--surface-highest);margin-top:1rem;overflow:hidden; }
+    .mem-health-fill { height:100%;border-radius:99px;background:linear-gradient(90deg,var(--primary),var(--tertiary-dim));width:60%; }
+
+    /* CONHECIMENTO */
+    .conhecimento-grid { display:grid;grid-template-columns:repeat(3,1fr);gap:1rem; }
+    .conhecimento-card { background:var(--surface-low);border:1px solid var(--outline-faint);border-radius:.75rem;padding:1.25rem;transition:border-color .3s; }
+    .conhecimento-card:hover { border-color:rgba(189,157,255,.3); }
+    .conhc-icon { width:32px;height:32px;border-radius:6px;background:var(--primary-glow);display:flex;align-items:center;justify-content:center;color:var(--primary);margin-bottom:.75rem; }
+    .conhc-title { font-size:.8rem;font-weight:800;margin-bottom:.3rem; }
+    .conhc-desc { font-size:.65rem;color:var(--on-surface-variant);line-height:1.5;margin-bottom:.75rem; }
+    .conhc-files { display:flex;flex-direction:column;gap:.3rem; }
+    .conhc-file { font-size:.6rem;padding:.3rem .6rem;border-radius:4px;background:var(--surface-mid);display:flex;align-items:center;gap:.4rem; }
+    .conhc-file.has { color:var(--tertiary-dim); }
+    .conhc-file.empty { color:var(--on-surface-variant);opacity:.6; }
+    .conhc-dot { width:5px;height:5px;border-radius:50%;flex-shrink:0; }
+    .conhc-dot.has { background:var(--tertiary-dim); }
+    .conhc-dot.empty { background:var(--outline-variant); }
+
+    /* INBOX + CALENDAR — 2 col */
+    .inbox-cal { display:grid;grid-template-columns:1fr 1fr;gap:1.5rem; }
+    .inbox-count { font-size:3rem;font-weight:900;color:var(--on-surface-variant);letter-spacing:-.05em;line-height:1; }
+    .inbox-label { font-size:.6rem;font-weight:700;text-transform:uppercase;letter-spacing:.15em;color:var(--on-surface-variant);margin-top:.25rem; }
+    .inbox-empty { text-align:center;padding:2rem; }
+    .inbox-tip { font-size:.65rem;color:var(--on-surface-variant);margin-top:.5rem;line-height:1.6; }
+    .cal-grid { display:grid;grid-template-columns:repeat(3,1fr);gap:.75rem;margin-top:.5rem; }
+    .cal-item { background:var(--surface-mid);border:1px solid var(--outline-faint);border-radius:.5rem;padding:.9rem;text-align:center; }
+    .cal-item-icon { display:flex;justify-content:center;margin-bottom:.4rem;color:var(--on-surface-variant); }
+    .cal-item-name { font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--on-surface-variant);margin-bottom:.2rem; }
+    .cal-item-count { font-size:1.2rem;font-weight:900;color:var(--on-surface-variant); }
+    .cal-item-sub { font-size:.5rem;color:var(--on-surface-variant);opacity:.6;text-transform:uppercase;letter-spacing:.1em; }
+
+    /* FOOTER */
+    footer { padding:3rem;border-top:1px solid rgba(72,71,76,.05);text-align:center; }
+    footer p { font-size:.55rem;font-weight:700;text-transform:uppercase;letter-spacing:.5em;color:var(--on-surface-variant); }
+
+    /* BACKDROP */
+    #backdrop { position:fixed;inset:0;background:rgba(0,0,0,.5);backdrop-filter:blur(4px);z-index:55;opacity:0;pointer-events:none;transition:opacity .3s; }
+    #backdrop.open { opacity:1;pointer-events:all; }
+
+    /* DRAWER */
+    #drawer { position:fixed;top:0;right:0;width:58%;height:100%;z-index:60;background:rgba(19,19,23,.97);backdrop-filter:blur(24px);border-left:1px solid rgba(72,71,76,.15);box-shadow:-20px 0 50px rgba(0,0,0,.5);display:flex;flex-direction:column;transform:translateX(100%);transition:transform .35s cubic-bezier(.4,0,.2,1); }
+    #drawer.open { transform:translateX(0); }
+    .drw-header { padding:1.5rem 2rem;border-bottom:1px solid var(--outline-faint);display:flex;justify-content:space-between;align-items:center;flex-shrink:0; }
+    .drw-title-row { display:flex;align-items:center;gap:1rem; }
+    .drw-icon { width:44px;height:44px;background:var(--primary);border-radius:10px;display:flex;align-items:center;justify-content:center;color:var(--surface);flex-shrink:0; }
+    #drw-title { font-size:1.3rem;font-weight:900;letter-spacing:-.02em; }
+    .drw-sub { font-size:.55rem;font-weight:700;text-transform:uppercase;letter-spacing:.2em;color:var(--primary); }
+    .btn-close { width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:var(--on-surface-variant);transition:background .2s; }
+    .btn-close:hover { background:var(--surface-highest); }
+    .drw-body { display:flex;flex:1;overflow:hidden; }
+    .drw-nav { width:90px;border-right:1px solid var(--outline-faint);display:flex;flex-direction:column;align-items:center;padding:1.5rem 0;gap:1.2rem;flex-shrink:0;overflow-y:auto; }
+    .nav-btn { display:flex;flex-direction:column;align-items:center;gap:3px;padding:.4rem;border-radius:8px;color:var(--on-surface-variant);width:60px; }
+    .nav-icon { width:34px;height:34px;border-radius:8px;display:flex;align-items:center;justify-content:center;transition:background .2s,color .2s; }
+    .nav-lbl { font-size:.48rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em; }
+    .nav-btn:hover .nav-icon,.nav-btn.active .nav-icon { background:var(--surface-highest);color:var(--primary); }
+    .nav-btn:hover .nav-lbl,.nav-btn.active .nav-lbl { color:var(--primary); }
+    .drw-content { flex:1;overflow-y:auto;padding:1.5rem 2rem; }
+    .tab-pnl { display:none; }
+    .tab-pnl.active { display:block; }
+
+    /* DRAWER INTERNALS */
+    .d-sec { margin-bottom:2.5rem; }
+    .d-sec-head { display:flex;justify-content:space-between;align-items:center;margin-bottom:.75rem; }
+    .d-sec-head h4 { font-size:.95rem;font-weight:800; }
+    .btn-exp { font-size:.55rem;font-weight:700;text-transform:uppercase;letter-spacing:.15em;color:var(--primary);display:flex;align-items:center;gap:5px; }
+    .btn-exp:hover { opacity:.7; }
+    .tbl-wrap { background:var(--surface-mid);border:1px solid var(--outline-faint);border-radius:.75rem;overflow:hidden; }
+    .dtbl thead tr { background:var(--surface-high); }
+    .dtbl th { padding:.75rem 1.2rem;font-size:.5rem;font-weight:700;text-transform:uppercase;letter-spacing:.2em;color:var(--on-surface-variant);text-align:left; }
+    .dtbl td { padding:.7rem 1.2rem;font-size:.78rem;border-top:1px solid var(--outline-faint); }
+    .dtbl tbody tr:hover { background:var(--surface-highest); }
+    .sbadge { padding:2px 7px;border-radius:4px;background:var(--surface-highest);font-size:.5rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em; }
+    .sg { color:var(--tertiary-dim); } .sr { color:var(--error); } .sy { color:var(--warn); } .sp { color:var(--primary); }
+    .m2 { display:grid;grid-template-columns:repeat(2,1fr);gap:.75rem; }
+    .m3 { display:grid;grid-template-columns:repeat(3,1fr);gap:.75rem; }
+    .mcard { background:var(--surface-high);border:1px solid var(--outline-faint);border-radius:.75rem;padding:1.25rem; }
+    .mlbl { font-size:.5rem;font-weight:700;text-transform:uppercase;letter-spacing:.2em;color:var(--on-surface-variant);margin-bottom:.4rem; }
+    .mval { font-size:1.6rem;font-weight:900;letter-spacing:-.03em;color:var(--primary); }
+    .mval.gv { color:var(--tertiary-dim); }
+    .mtrend { font-size:.6rem;color:var(--on-surface-variant);margin-top:.4rem; }
+    .funil-list { display:flex;flex-direction:column;gap:.6rem; }
+    .funil-item { display:flex;align-items:center;gap:.75rem;background:var(--surface-mid);border:1px solid var(--outline-faint);border-radius:.5rem;padding:.85rem 1rem; }
+    .fn { width:26px;height:26px;border-radius:50%;background:var(--surface-highest);display:flex;align-items:center;justify-content:center;font-size:.6rem;font-weight:700;flex-shrink:0; }
+    .fn.done { background:var(--primary);color:var(--surface); }
+    .fi-name { flex:1;font-size:.82rem;font-weight:600; }
+    .chip { font-size:.5rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;padding:3px 9px;border-radius:99px; }
+    .chip-ok { background:rgba(91,240,131,.1);color:var(--tertiary-dim); }
+    .chip-no { background:rgba(255,110,132,.1);color:var(--error); }
+    .txt-panel { background:var(--surface-mid);border:1px solid var(--outline-faint);border-radius:.75rem;padding:1.25rem; }
+    .txt-lbl { font-size:.55rem;font-weight:700;text-transform:uppercase;letter-spacing:.15em;color:var(--on-surface-variant);margin-bottom:.4rem; }
+    .txt-val { font-size:.9rem;font-weight:700;color:var(--on-surface);min-height:1.5rem; }
+    .txt-val.empty { color:var(--on-surface-variant);font-weight:400;font-style:italic;font-size:.75rem; }
+    .copy-block-list { display:flex;flex-direction:column;gap:.4rem;margin-top:.75rem; }
+    .copy-block-item { display:flex;align-items:center;gap:.6rem;padding:.5rem .75rem;border-radius:.4rem;background:var(--surface-high); }
+    .cb-num { font-size:.55rem;font-weight:700;color:var(--primary);width:16px;flex-shrink:0; }
+    .cb-name { font-size:.72rem;font-weight:600; }
+    .empty-state { text-align:center;padding:2rem 1rem;color:var(--on-surface-variant); }
+    .empty-state span { font-size:.6rem;font-weight:700;text-transform:uppercase;letter-spacing:.15em;display:block;margin-bottom:.3rem; }
+    .empty-state p { font-size:.7rem; }
+  </style>
+</head>
+<body>
+
+<!-- ══ HEADER ══════════════════════════════════════════════════ -->
+<header>
+  <div class="header-left">
+    <span class="logo">OGARCOM</span>
+    <nav>
+      <a href="#" class="active">Dashboard</a>
+      <a href="#">Analytics</a>
+    </nav>
+  </div>
+  <div class="header-right">
+    <div>
+      <div class="h-ctrl">Central de Controle</div>
+      <span class="h-badge">3 Projetos Ativos</span>
+    </div>
+    <button class="btn-new">+ Novo Projeto</button>
+    <div class="avatar-wrap"><i data-lucide="user" style="width:18px;height:18px;color:var(--on-surface-variant)"></i></div>
+  </div>
+</header>
+
+<!-- ══ MAIN ════════════════════════════════════════════════════ -->
+<main>
+
+  <!-- ── 1. PROJETOS ─────────────────────────────────────────── -->
+  <section>
+    <div class="sec-head">
+      <div>
+        <div class="sec-label">Portfolio Overview</div>
+        <h2>Active Projects</h2>
+      </div>
+      <div style="text-align:right">
+        <div class="global-num">83%</div>
+        <div class="global-sub">Global Pipeline Completion</div>
+      </div>
+    </div>
+    <div class="projects-grid" id="projects-grid"></div>
+  </section>
+
+  <!-- ── 2. PIPELINE ─────────────────────────────────────────── -->
+  <section>
+    <div class="pipeline-wrap">
+      <div class="pip-bg"><i data-lucide="package-check" style="width:120px;height:120px"></i></div>
+      <div class="pip-head">
+        <h3>MVT Execution Pipeline</h3>
+        <p>As 6 etapas fundamentais do framework Minimum Viable Testing.</p>
+      </div>
+      <div class="pip-track">
+        <div class="pip-line"></div>
+        <div class="pip-fill"></div>
+        <div class="pip-stages" id="pip-stages"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── 3. SKILLS ───────────────────────────────────────────── -->
+  <section>
+    <div class="skills-head">
+      <div>
+        <div class="sec-label purple">Expertise Gallery</div>
+        <h2>Proprietary Assets & Skills</h2>
+      </div>
+      <span style="font-size:.55rem;font-weight:700;text-transform:uppercase;letter-spacing:.3em;color:var(--on-surface-variant)">Verified Mastery</span>
+    </div>
+
+    <div class="skills-group-label" style="margin-top:0">⚡ Skills MVT — Método</div>
+    <div class="skills-grid" id="skills-mvt"></div>
+
+    <div class="skills-group-label">🔧 Skills de Sistema — Memória & Sessão</div>
+    <div class="skills-grid sistema" id="skills-sistema"></div>
+  </section>
+
+  <!-- ── 4. SESSION LOGS + MEMÓRIA ──────────────────────────── -->
+  <section>
+    <div class="sec-head">
+      <div>
+        <div class="sec-label">Histórico & Saúde</div>
+        <h2>Sessões & Memória</h2>
+      </div>
+    </div>
+    <div class="two-col">
+
+      <!-- Session Logs -->
+      <div>
+        <div class="panel-head" style="margin-bottom:1rem">
+          <div class="panel-icon"><i data-lucide="scroll-text" style="width:18px;height:18px"></i></div>
+          <div>
+            <div class="panel-title">Session Logs</div>
+            <div class="panel-sub">Histórico de sessões com o Claude</div>
+          </div>
+        </div>
+        <div id="session-logs-list"></div>
+      </div>
+
+      <!-- Memória -->
+      <div class="panel">
+        <div class="panel-head">
+          <div class="panel-icon green"><i data-lucide="brain" style="width:18px;height:18px"></i></div>
+          <div>
+            <div class="panel-title">Saúde da Memória</div>
+            <div class="panel-sub">Status do vault do Claude</div>
+          </div>
+        </div>
+        <div id="memory-rows"></div>
+        <div class="mem-health-bar"><div class="mem-health-fill"></div></div>
+        <div style="font-size:.55rem;color:var(--on-surface-variant);margin-top:.4rem;text-align:right">60% saudável — 2 sessões sem /cleanup</div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ── 5. BASE DE CONHECIMENTO ────────────────────────────── -->
+  <section>
+    <div class="sec-head">
+      <div>
+        <div class="sec-label">Vault Intelligence</div>
+        <h2>Base de Conhecimento</h2>
+      </div>
+    </div>
+    <div class="conhecimento-grid" id="conhecimento-grid"></div>
+  </section>
+
+  <!-- ── 6. INBOX + CALENDAR ────────────────────────────────── -->
+  <section>
+    <div class="inbox-cal">
+
+      <!-- +Inbox -->
+      <div class="panel">
+        <div class="panel-head">
+          <div class="panel-icon warn"><i data-lucide="inbox" style="width:18px;height:18px"></i></div>
+          <div>
+            <div class="panel-title">+Inbox</div>
+            <div class="panel-sub">Captura rápida de ideias</div>
+          </div>
+        </div>
+        <div class="inbox-empty">
+          <div class="inbox-count">0</div>
+          <div class="inbox-label">itens pendentes</div>
+          <p class="inbox-tip">Crie notas rápidas na pasta <strong>+Inbox/</strong> no Obsidian.<br>Elas aparecem aqui para triagem.</p>
+        </div>
+      </div>
+
+      <!-- Calendar -->
+      <div class="panel">
+        <div class="panel-head">
+          <div class="panel-icon" style="background:rgba(245,158,11,.1);color:var(--warn)"><i data-lucide="calendar-days" style="width:18px;height:18px"></i></div>
+          <div>
+            <div class="panel-title">Calendar</div>
+            <div class="panel-sub">Notas diárias, semanais e mensais</div>
+          </div>
+        </div>
+        <div class="cal-grid">
+          <div class="cal-item">
+            <div class="cal-item-icon"><i data-lucide="sun" style="width:16px;height:16px"></i></div>
+            <div class="cal-item-name">Daily</div>
+            <div class="cal-item-count">0</div>
+            <div class="cal-item-sub">notas</div>
+          </div>
+          <div class="cal-item">
+            <div class="cal-item-icon"><i data-lucide="calendar" style="width:16px;height:16px"></i></div>
+            <div class="cal-item-name">Weekly</div>
+            <div class="cal-item-count">0</div>
+            <div class="cal-item-sub">notas</div>
+          </div>
+          <div class="cal-item">
+            <div class="cal-item-icon"><i data-lucide="calendar-range" style="width:16px;height:16px"></i></div>
+            <div class="cal-item-name">Monthly</div>
+            <div class="cal-item-count">0</div>
+            <div class="cal-item-sub">notas</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+</main>
+
+<!-- ══ FOOTER ══════════════════════════════════════════════════ -->
+<footer><p>OGARCOM © 2026 • The Digital Architect</p></footer>
+
+<!-- ══ BACKDROP ════════════════════════════════════════════════ -->
+<div id="backdrop" onclick="closeDrawer()"></div>
+
+<!-- ══ DRAWER ══════════════════════════════════════════════════ -->
+<div id="drawer">
+  <div class="drw-header">
+    <div class="drw-title-row">
+      <div class="drw-icon"><i data-lucide="rocket" style="width:22px;height:22px"></i></div>
+      <div>
+        <div id="drw-title">Projeto</div>
+        <div class="drw-sub">MVT Pipeline Active</div>
+      </div>
+    </div>
+    <button class="btn-close" onclick="closeDrawer()"><i data-lucide="x" style="width:18px;height:18px"></i></button>
+  </div>
+
+  <div class="drw-body">
+    <nav class="drw-nav">
+      <button class="nav-btn active" onclick="switchTab(this,'t-funil')">
+        <div class="nav-icon"><i data-lucide="filter" style="width:16px;height:16px"></i></div>
+        <span class="nav-lbl">Funil</span>
+      </button>
+      <button class="nav-btn" onclick="switchTab(this,'t-camp')">
+        <div class="nav-icon"><i data-lucide="megaphone" style="width:16px;height:16px"></i></div>
+        <span class="nav-lbl">Camp.</span>
+      </button>
+      <button class="nav-btn" onclick="switchTab(this,'t-copy')">
+        <div class="nav-icon"><i data-lucide="file-text" style="width:16px;height:16px"></i></div>
+        <span class="nav-lbl">Copy</span>
+      </button>
+      <button class="nav-btn" onclick="switchTab(this,'t-cria')">
+        <div class="nav-icon"><i data-lucide="palette" style="width:16px;height:16px"></i></div>
+        <span class="nav-lbl">Criat.</span>
+      </button>
+      <button class="nav-btn" onclick="switchTab(this,'t-pag')">
+        <div class="nav-icon"><i data-lucide="globe" style="width:16px;height:16px"></i></div>
+        <span class="nav-lbl">Página</span>
+      </button>
+      <button class="nav-btn" onclick="switchTab(this,'t-anal')">
+        <div class="nav-icon"><i data-lucide="bar-chart-3" style="width:16px;height:16px"></i></div>
+        <span class="nav-lbl">Análise</span>
+      </button>
+      <button class="nav-btn" onclick="switchTab(this,'t-pend')">
+        <div class="nav-icon"><i data-lucide="clock" style="width:16px;height:16px"></i></div>
+        <span class="nav-lbl">Pend.</span>
+      </button>
+    </nav>
+
+    <div class="drw-content">
+
+      <!-- FUNIL -->
+      <div id="t-funil" class="tab-pnl active">
+        <div class="d-sec">
+          <div class="d-sec-head">
+            <h4>Funil MVT</h4>
+            <button class="btn-exp"><i data-lucide="download" style="width:13px;height:13px"></i> Export</button>
+          </div>
+          <div class="funil-list" id="funil-list"></div>
+        </div>
+        <div class="m2">
+          <div class="mcard"><div class="mlbl">Pipeline</div><div class="mval">83%</div><div class="mtrend">5 de 6 etapas</div></div>
+          <div class="mcard"><div class="mlbl">Status</div><div class="mval gv">Ativo</div><div class="mtrend">Campanha rodando</div></div>
+        </div>
+      </div>
+
+      <!-- CAMPANHAS -->
+      <div id="t-camp" class="tab-pnl">
+        <div class="d-sec">
+          <div class="d-sec-head"><h4>Campanhas Ativas</h4></div>
+          <div class="tbl-wrap">
+            <table class="dtbl"><thead><tr><th>Campanha</th><th>Objetivo</th><th>Verba/dia</th><th>Status</th></tr></thead>
+            <tbody><tr><td colspan="4"><div class="empty-state"><span>Nenhuma campanha registrada</span><p>Preencha Campanhas/CAMPANHAS.md no vault</p></div></td></tr></tbody></table>
+          </div>
+        </div>
+        <div class="d-sec">
+          <div class="d-sec-head"><h4>Campanhas Pausadas</h4></div>
+          <div class="tbl-wrap">
+            <table class="dtbl"><thead><tr><th>Campanha</th><th>Motivo</th><th>Data</th></tr></thead>
+            <tbody><tr><td colspan="3"><div class="empty-state"><span>Nenhuma pausada</span></div></td></tr></tbody></table>
+          </div>
+        </div>
+      </div>
+
+      <!-- COPY -->
+      <div id="t-copy" class="tab-pnl">
+        <div class="d-sec">
+          <div class="d-sec-head"><h4>Copy da Página</h4></div>
+          <div class="txt-panel">
+            <div class="txt-lbl">Headline Principal</div>
+            <div id="c-headline" class="txt-val empty">Preencha Copy/COPY.md no vault</div>
+            <div class="txt-lbl" style="margin-top:1rem">Subheadline</div>
+            <div id="c-sub" class="txt-val empty">—</div>
+            <div class="txt-lbl" style="margin-top:1rem">Blocos da Página</div>
+            <div class="copy-block-list">
+              <div class="copy-block-item"><span class="cb-num">01</span><span class="cb-name">Dor / Agitação</span></div>
+              <div class="copy-block-item"><span class="cb-num">02</span><span class="cb-name">Apresentação da Solução</span></div>
+              <div class="copy-block-item"><span class="cb-num">03</span><span class="cb-name">O que está incluído</span></div>
+              <div class="copy-block-item"><span class="cb-num">04</span><span class="cb-name">Prova Social / Depoimentos</span></div>
+              <div class="copy-block-item"><span class="cb-num">05</span><span class="cb-name">Garantia</span></div>
+              <div class="copy-block-item"><span class="cb-num">06</span><span class="cb-name">Oferta e Preço</span></div>
+              <div class="copy-block-item"><span class="cb-num">07</span><span class="cb-name">CTA Final</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="d-sec">
+          <div class="d-sec-head"><h4>Copy dos Anúncios</h4></div>
+          <div class="tbl-wrap">
+            <table class="dtbl"><thead><tr><th>Anúncio</th><th>Formato</th><th>Plataforma</th></tr></thead>
+            <tbody><tr><td colspan="3"><div class="empty-state"><span>Nenhum anúncio</span></div></td></tr></tbody></table>
+          </div>
+        </div>
+      </div>
+
+      <!-- CRIATIVOS -->
+      <div id="t-cria" class="tab-pnl">
+        <div class="d-sec">
+          <div class="d-sec-head"><h4>Criativos Ativos</h4></div>
+          <div class="tbl-wrap">
+            <table class="dtbl"><thead><tr><th>Nome</th><th>Formato</th><th>CTR</th><th>Status</th></tr></thead>
+            <tbody><tr><td colspan="4"><div class="empty-state"><span>Nenhum criativo</span><p>Preencha Criativos/CRIATIVOS.md</p></div></td></tr></tbody></table>
+          </div>
+        </div>
+        <div class="d-sec">
+          <div class="d-sec-head"><h4>Direção Visual</h4></div>
+          <div class="txt-panel">
+            <div class="txt-lbl">Paleta · Tipografia · Estilo · Tom</div>
+            <div class="txt-val empty" style="margin-top:.4rem">Preencha a seção "Direção Visual" em Criativos/CRIATIVOS.md</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PÁGINA -->
+      <div id="t-pag" class="tab-pnl">
+        <div class="d-sec">
+          <div class="d-sec-head"><h4>Estrutura da Página de Venda</h4></div>
+          <div class="tbl-wrap">
+            <table class="dtbl">
+              <thead><tr><th>#</th><th>Bloco</th><th>Elemento</th><th>Status</th></tr></thead>
+              <tbody>
+                <tr><td>1</td><td>Hero</td><td>Headline principal</td><td><span class="sbadge sy">Pendente</span></td></tr>
+                <tr><td>2</td><td>Dor</td><td>Agitação do problema</td><td><span class="sbadge sy">Pendente</span></td></tr>
+                <tr><td>3</td><td>Solução</td><td>Apresentação do produto</td><td><span class="sbadge sy">Pendente</span></td></tr>
+                <tr><td>4</td><td>Conteúdo</td><td>O que está incluído</td><td><span class="sbadge sy">Pendente</span></td></tr>
+                <tr><td>5</td><td>Prova</td><td>Depoimentos / Social Proof</td><td><span class="sbadge sy">Pendente</span></td></tr>
+                <tr><td>6</td><td>Garantia</td><td>Garantia do produto</td><td><span class="sbadge sy">Pendente</span></td></tr>
+                <tr><td>7</td><td>Oferta</td><td>Preço e condições</td><td><span class="sbadge sy">Pendente</span></td></tr>
+                <tr><td>8</td><td>CTA</td><td>Chamada para ação final</td><td><span class="sbadge sy">Pendente</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="m2">
+          <div class="mcard"><div class="mlbl">Taxa de Conversão</div><div class="mval" style="font-size:1.2rem">—</div><div class="mtrend">Preencha ESTRUTURA-PAGINA.md</div></div>
+          <div class="mcard"><div class="mlbl">Visitas / mês</div><div class="mval" style="font-size:1.2rem">—</div><div class="mtrend">Preencha ESTRUTURA-PAGINA.md</div></div>
+        </div>
+      </div>
+
+      <!-- ANÁLISES -->
+      <div id="t-anal" class="tab-pnl">
+        <div class="d-sec">
+          <div class="d-sec-head"><h4>Métricas Principais</h4></div>
+          <div class="m3">
+            <div class="mcard"><div class="mlbl">Custo por Venda</div><div class="mval" style="font-size:1.2rem">—</div><div class="mtrend">Preencha ANALISES.md</div></div>
+            <div class="mcard"><div class="mlbl">ROAS</div><div class="mval" style="font-size:1.2rem">—</div><div class="mtrend">Preencha ANALISES.md</div></div>
+            <div class="mcard"><div class="mlbl">Vendas Totais</div><div class="mval gv" style="font-size:1.2rem">—</div><div class="mtrend">Preencha ANALISES.md</div></div>
+          </div>
+        </div>
+        <div class="d-sec">
+          <div class="d-sec-head"><h4>Histórico de Resultados</h4></div>
+          <div class="tbl-wrap">
+            <table class="dtbl"><thead><tr><th>Período</th><th>Vendas</th><th>Investimento</th><th>Lucro</th><th>ROAS</th></tr></thead>
+            <tbody><tr><td colspan="5"><div class="empty-state"><span>Sem dados</span><p>Preencha Analises/ANALISES.md</p></div></td></tr></tbody></table>
+          </div>
+        </div>
+      </div>
+
+      <!-- PENDÊNCIAS -->
+      <div id="t-pend" class="tab-pnl">
+        <div class="d-sec">
+          <div class="d-sec-head"><h4>Pendências do Projeto</h4></div>
+          <div class="funil-list" id="pend-list"></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════════════════════
+// CONFIG — GitHub API
+// ══════════════════════════════════════════════════════════════
+const GH_OWNER  = 'BoubbleG';
+const GH_REPO   = 'ogarcom-dashboard';
+const GH_BRANCH = 'main';
+const API       = `https://api.github.com/repos/${GH_OWNER}/${GH_REPO}/contents`;
+
+const PROJECT_IDS = [
+  { id:'GESSEIRO-MASTER', title:'GESSEIRO MASTER', niche:'Gesseiros' },
+  { id:'PINTOR-PRO',      title:'PINTOR PRO',      niche:'Pintores'  },
+  { id:'SINDICO-PRO',     title:'SÍNDICO PRO',     niche:'Síndicos'  },
+];
+
+// ══════════════════════════════════════════════════════════════
+// STATIC DATA (não muda com vault)
+// ══════════════════════════════════════════════════════════════
+const PIPELINE = [
+  {id:'01',name:'ICP Research',   icon:'users',        done:true},
+  {id:'02',name:'Page Structure', icon:'layout',       done:true},
+  {id:'03',name:'Creatives',      icon:'palette',      done:true},
+  {id:'04',name:'Split Testing',  icon:'test-tube-2',  done:true},
+  {id:'05',name:'Offer Design',   icon:'shopping-cart',done:true},
+  {id:'06',name:'Deliverables',   icon:'package-check',done:false},
+];
+const SKILLS_MVT = [
+  {code:'/AM',title:'Agente Mestre MVT',    desc:'Orquestra toda a operação MVT do início ao fim.'},
+  {code:'/IC',title:'ICP MVT',              desc:'Define o perfil do cliente ideal com precisão.'},
+  {code:'/CO',title:'Concepção de Oferta',  desc:'Arquitetura estratégica de ofertas irresistíveis.'},
+  {code:'/CW',title:'Copywriter Página',    desc:'Copy de resposta direta para landing pages.'},
+  {code:'/AU',title:'Auditor MVT',          desc:'Audita funil e métricas de performance.'},
+  {code:'/DD',title:'Direção Design',       desc:'Identidade visual para escalabilidade.'},
+  {code:'/ED',title:'Entregáveis Digitais', desc:'Ativos de alta qualidade para entrega final.'},
+  {code:'/UI',title:'Presets UI MVT',       desc:'Biblioteca de componentes para páginas.'},
+  {code:'/JE',title:'JSON Elementor',       desc:'Templates de página para deploy rápido.'},
+  {code:'/JI',title:'JSON Importável',      desc:'JSON real importável no Elementor + scripts.'},
+];
+const SKILLS_SISTEMA = [
+  {code:'/resume',   title:'Resume',   desc:'Carrega contexto ao iniciar sessão.'},
+  {code:'/compress', title:'Compress', desc:'Salva sessão filtrando ruído.'},
+  {code:'/preserve', title:'Preserve', desc:'Atualiza a memória permanente.'},
+  {code:'/cleanup',  title:'Cleanup',  desc:'Remove logs antigos e consolida.'},
+];
+const CONHECIMENTO = [
+  { icon:'brain',      title:'Como Trabalhar com o Claude', desc:'Guia de colaboração, formato de pedidos e boas práticas.', files:[{name:'como-trabalhar-com-o-claude.md',has:true}] },
+  { icon:'target',     title:'MVT — Referências',           desc:'Referências técnicas e de método do framework MVT.',       files:[{name:'Referencias.md',has:true},{name:'Tecnicas/',has:false}] },
+  { icon:'pen-tool',   title:'Copy',                        desc:'Base de conhecimento de copywriting.',                    files:[{name:'Copy/ (vazio)',has:false}] },
+  { icon:'image',      title:'Criativos',                   desc:'Técnicas e referências para criativos de anúncio.',       files:[{name:'Criativos/ (vazio)',has:false}] },
+  { icon:'bar-chart-2',title:'Análise de Dados',            desc:'Métodos para análise de métricas e resultados.',          files:[{name:'Analise-de-Dados/ (vazio)',has:false}] },
+  { icon:'book-open',  title:'Sistema',                     desc:'Dashboards, templates e estrutura de suporte do vault.',  files:[{name:'HOME.md',has:true},{name:'Templates/ (vazio)',has:false}] },
+];
+
+// ══════════════════════════════════════════════════════════════
+// GITHUB API — buscar e decodificar arquivo
+// ══════════════════════════════════════════════════════════════
+async function fetchFile(path) {
+  try {
+    const res = await fetch(`${API}/${path}?ref=${GH_BRANCH}`, {
+      headers: { 'Accept': 'application/vnd.github.v3+json' }
+    });
+    if (!res.ok) return null;
+    const json = await res.json();
+    return decodeURIComponent(escape(atob(json.content.replace(/\n/g,''))));
+  } catch { return null; }
+}
+
+async function listDir(path) {
+  try {
+    const res = await fetch(`${API}/${path}?ref=${GH_BRANCH}`, {
+      headers: { 'Accept': 'application/vnd.github.v3+json' }
+    });
+    if (!res.ok) return [];
+    return await res.json();
+  } catch { return []; }
+}
+
+// ══════════════════════════════════════════════════════════════
+// PARSERS DE MARKDOWN
+// ══════════════════════════════════════════════════════════════
+
+// Extrai valor de frontmatter: key: value
+function parseFrontmatter(md, key) {
+  const m = md.match(new RegExp(`^${key}:\\s*(.+)$`, 'm'));
+  return m ? m[1].trim() : '';
+}
+
+// Extrai conteúdo de uma seção ## Título até o próximo ##
+function parseSection(md, heading) {
+  const re = new RegExp(`##\\s+${heading}[\\s\\S]*?(?=\\n##|$)`, 'i');
+  const m = md.match(re);
+  return m ? m[0] : '';
+}
+
+// Converte tabela markdown em array de objetos [{col:val,...}]
+function parseTable(md) {
+  const lines = md.split('\n').filter(l => l.trim().startsWith('|'));
+  if (lines.length < 3) return [];
+  const headers = lines[0].split('|').map(h=>h.trim()).filter(Boolean);
+  const rows = lines.slice(2).map(line => {
+    const cells = line.split('|').map(c=>c.trim()).filter(Boolean);
+    const obj = {};
+    headers.forEach((h,i) => obj[h] = cells[i] || '');
+    return obj;
+  }).filter(r => Object.values(r).some(v => v && v !== ''));
+  return rows;
+}
+
+// Parse do INDEX.md para extrair funil e pendências
+function parseIndex(md) {
+  const funil = [];
+  const lines = md.split('\n');
+  lines.forEach(line => {
+    const m = line.match(/\|\s*(\d+)\.\s*(.+?)\s*\|\s*(✅|❓|)\s*\|/);
+    if (m) funil.push({ name: m[2].trim(), done: m[3] === '✅' });
+  });
+
+  const pendencias = [];
+  const pendSection = parseSection(md, 'O que esta faltando');
+  const pendLines = pendSection.split('\n').filter(l => l.match(/^-\s*\[[ x]\]/));
+  pendLines.forEach(l => {
+    const done = l.includes('[x]');
+    const text = l.replace(/^-\s*\[[ x]\]\s*/, '').trim();
+    if (text && text !== '_(adicione pendencias aqui)_') pendencias.push({ text, done });
+  });
+
+  return { funil, pendencias };
+}
+
+// Parse do COPY.md
+function parseCopy(md) {
+  const headline = parseSection(md, 'Headline Principal').replace(/##.*\n/, '').replace(/>/g, '').trim();
+  const sub      = parseSection(md, 'Subheadline').replace(/##.*\n/, '').replace(/>/g, '').trim();
+  return { headline, sub };
+}
+
+// Parse de CAMPANHAS.md
+function parseCampanhas(md) {
+  const ativasSection  = parseSection(md, 'Campanhas Ativas');
+  const pausadasSection = parseSection(md, 'Campanhas Pausadas');
+  return {
+    ativas:  parseTable(ativasSection),
+    pausadas: parseTable(pausadasSection),
+  };
+}
+
+// Parse de CRIATIVOS.md
+function parseCriativos(md) {
+  const ativos = parseTable(parseSection(md, 'Criativos Ativos'));
+  const direcaoSection = parseSection(md, 'Direcao Visual');
+  const direcao = direcaoSection.split('\n').filter(l=>l.startsWith('-')).map(l=>l.replace(/^-\s*/,'')).filter(Boolean);
+  return { ativos, direcao };
+}
+
+// Parse de ANALISES.md
+function parseAnalises(md) {
+  const rows = parseTable(parseSection(md, 'Metricas Principais'));
+  const hist = parseTable(parseSection(md, 'Historico de Resultados'));
+  const metrics = {};
+  rows.forEach(r => { if (r['Metrica']) metrics[r['Metrica']] = r['Valor atual'] || '—'; });
+  return { metrics, hist };
+}
+
+// Parse de session log
+function parseSessionLog(md, filename) {
+  const date    = parseFrontmatter(md,'date') || filename.slice(0,10);
+  const assunto = parseFrontmatter(md,'assunto') || '';
+  const resumo  = parseSection(md,'Resumo').replace(/##\s*Resumo\s*/,'').trim().slice(0,200);
+  const tagsRaw = parseFrontmatter(md,'tags');
+  const tags    = tagsRaw.replace(/[\[\]]/g,'').split(',').map(t=>t.trim()).filter(Boolean);
+  return { date, title: assunto || filename, desc: resumo, tags };
+}
+
+// ══════════════════════════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════════════════════════
+let PROJECTS = PROJECT_IDS.map(p => ({
+  ...p, progress:0, funilStages:[], pendencias:[], rawFiles:{}
+}));
+
+// ══════════════════════════════════════════════════════════════
+// CARREGAMENTO DOS DADOS
+// ══════════════════════════════════════════════════════════════
+async function loadAllData() {
+  showLoading(true);
+
+  // Buscar todos os projetos em paralelo
+  await Promise.all(PROJECTS.map(async (proj) => {
+    const base = `data/${proj.id}`;
+    const [indexMd, campMd, copyMd, criaMd, pagMd, analMd] = await Promise.all([
+      fetchFile(`${base}/INDEX.md`),
+      fetchFile(`${base}/CAMPANHAS.md`),
+      fetchFile(`${base}/COPY.md`),
+      fetchFile(`${base}/CRIATIVOS.md`),
+      fetchFile(`${base}/ESTRUTURA-PAGINA.md`),
+      fetchFile(`${base}/ANALISES.md`),
+    ]);
+
+    if (indexMd) {
+      const { funil, pendencias } = parseIndex(indexMd);
+      proj.funilStages = funil.length ? funil : defaultFunil();
+      proj.pendencias  = pendencias.filter(p => !p.done).map(p => p.text);
+      proj.progress    = proj.funilStages.filter(s=>s.done).length;
+    } else {
+      proj.funilStages = defaultFunil();
+      proj.progress    = 5;
+    }
+
+    proj.rawFiles = {
+      camp: campMd, copy: copyMd, cria: criaMd, pag: pagMd, anal: analMd
+    };
+  }));
+
+  // Session logs
+  const logFiles = await listDir('data/session-logs');
+  const logMds   = await Promise.all(
+    logFiles.filter(f=>f.name.endsWith('.md'))
+            .sort((a,b)=>b.name.localeCompare(a.name))
+            .slice(0,5)
+            .map(f => fetchFile(`data/session-logs/${f.name}`).then(md => ({md, name:f.name})))
+  );
+  const SESSION_LOGS = logMds
+    .filter(({md})=>md)
+    .map(({md,name}) => parseSessionLog(md, name));
+
+  // Calcular % global
+  const totalDone = PROJECTS.reduce((s,p) => s + p.progress, 0);
+  const globalPct = Math.round(totalDone / (PROJECTS.length * 6) * 100);
+  document.querySelector('.global-num').textContent = globalPct + '%';
+
+  // Render tudo
+  renderProjects();
+  renderPipeline();
+  renderSkills();
+  renderSessionLogs(SESSION_LOGS);
+  renderMemory(SESSION_LOGS);
+  renderConhecimento();
+  lucide.createIcons();
+  showLoading(false);
+}
+
+function defaultFunil() {
+  return [
+    {name:'ICP definido',done:true},{name:'Página criada',done:true},
+    {name:'Criativos prontos',done:true},{name:'Testes de campanha',done:true},
+    {name:'Testes de oferta',done:true},{name:'Entregáveis criados',done:false}
+  ];
+}
+
+function showLoading(on) {
+  let el = document.getElementById('loading-bar');
+  if (!el) {
+    el = document.createElement('div');
+    el.id = 'loading-bar';
+    el.style.cssText = 'position:fixed;top:0;left:0;height:2px;background:var(--primary);z-index:999;transition:width .4s';
+    document.body.appendChild(el);
+  }
+  el.style.width = on ? '70%' : '100%';
+  if (!on) setTimeout(() => el.style.opacity='0', 400);
+  else el.style.opacity = '1';
+}
+
+// ══════════════════════════════════════════════════════════════
+// RENDER
+// ══════════════════════════════════════════════════════════════
+const stageLbls = ['ICP','Página','Criat','Testes','Oferta','Entre'];
+
+function renderProjects() {
+  document.getElementById('projects-grid').innerHTML = PROJECTS.map(p => `
+    <div class="project-card">
+      <div class="card-top">
+        <div>
+          <span class="card-badge-active">Ativo</span>
+          <div class="card-title">${p.title}</div>
+          <div class="card-niche">Nicho: ${p.niche}</div>
+        </div>
+        <div class="card-counter">${p.progress}<span>/6</span></div>
+      </div>
+      <div class="prog-label"><span>MVT Status</span><span>${Math.round(p.progress/6*100)}%</span></div>
+      <div class="prog-bar">${Array.from({length:6},(_,i)=>`<div class="prog-seg ${i<p.progress?'on':''}"></div>`).join('')}</div>
+      <div class="stage-lbls">${stageLbls.map(s=>`<span>${s}</span>`).join('')}</div>
+      <button class="btn-det" onclick="openDrawer('${p.id}')">Ver Detalhes</button>
+    </div>`).join('');
+}
+
+function renderPipeline() {
+  document.getElementById('pip-stages').innerHTML = PIPELINE.map(s => `
+    <div class="pip-stage">
+      <div class="pip-icon ${s.done?'done':'pend'}"><i data-lucide="${s.icon}" style="width:17px;height:17px"></i></div>
+      <div class="pip-lbl">
+        <span class="pip-num ${s.done?'done':'pend'}">Stage ${s.id}</span>
+        <span class="pip-name ${s.done?'done':'pend'}">${s.name}</span>
+      </div>
+    </div>`).join('');
+}
+
+function renderSkills() {
+  document.getElementById('skills-mvt').innerHTML = SKILLS_MVT.map(s => `
+    <div class="skill-card">
+      <div class="sk-top"><div class="sk-code">${s.code}</div><div class="sk-name">${s.title}</div></div>
+      <div class="sk-desc">${s.desc}</div>
+    </div>`).join('');
+  document.getElementById('skills-sistema').innerHTML = SKILLS_SISTEMA.map(s => `
+    <div class="skill-card sistema-card">
+      <div class="sk-top"><div class="sk-code">${s.code}</div><div class="sk-name">${s.title}</div></div>
+      <div class="sk-desc">${s.desc}</div>
+    </div>`).join('');
+}
+
+function renderSessionLogs(logs) {
+  if (!logs || !logs.length) return;
+  document.getElementById('session-logs-list').innerHTML = logs.map(l => `
+    <div class="log-item">
+      <div class="log-date">${l.date}</div>
+      <div class="log-title">${l.title}</div>
+      <div class="log-desc">${l.desc || '—'}</div>
+      <div class="log-tags">${(l.tags||[]).map(t=>`<span class="log-tag">${t}</span>`).join('')}</div>
+    </div>`).join('');
+}
+
+function renderMemory(logs) {
+  const lastLog = logs && logs[0] ? logs[0].date : '—';
+  const status = [
+    {key:'Última sessão salva',  val: lastLog,       cls:'ok'},
+    {key:'Última limpeza',       val:'Pendente',      cls:'pend'},
+    {key:'Último aprendizado',   val:'2026-04-10',    cls:'ok'},
+    {key:'Memória permanente',   val:'CLAUDE.md ✓',  cls:'ok'},
+    {key:'MCP Obsidian',         val:'Conectado ✓',  cls:'ok'},
+    {key:'Total de sessões',     val: (logs||[]).length + ' logs', cls:'warn'},
+  ];
+  document.getElementById('memory-rows').innerHTML = status.map(r => `
+    <div class="mem-row">
+      <span class="mem-key">${r.key}</span>
+      <span class="mem-val ${r.cls}">${r.val}</span>
+    </div>`).join('');
+}
+
+function renderConhecimento() {
+  document.getElementById('conhecimento-grid').innerHTML = CONHECIMENTO.map(c => `
+    <div class="conhecimento-card">
+      <div class="conhc-icon"><i data-lucide="${c.icon}" style="width:16px;height:16px"></i></div>
+      <div class="conhc-title">${c.title}</div>
+      <div class="conhc-desc">${c.desc}</div>
+      <div class="conhc-files">${c.files.map(f=>`
+        <div class="conhc-file ${f.has?'has':'empty'}">
+          <span class="conhc-dot ${f.has?'has':'empty'}"></span>${f.name}
+        </div>`).join('')}</div>
+    </div>`).join('');
+}
+
+// ══════════════════════════════════════════════════════════════
+// DRAWER
+// ══════════════════════════════════════════════════════════════
+let currentProject = null;
+
+function openDrawer(id) {
+  currentProject = PROJECTS.find(p => p.id === id);
+  if (!currentProject) return;
+
+  document.getElementById('drw-title').textContent = currentProject.title;
+
+  // Funil
+  document.getElementById('funil-list').innerHTML = currentProject.funilStages.map((s,i) => `
+    <div class="funil-item">
+      <div class="fn ${s.done?'done':''}">${i+1}</div>
+      <div class="fi-name">${s.name}</div>
+      <span class="chip ${s.done?'chip-ok':'chip-no'}">${s.done?'Concluído':'Pendente'}</span>
+    </div>`).join('');
+
+  // Pendências
+  document.getElementById('pend-list').innerHTML = currentProject.pendencias.length
+    ? currentProject.pendencias.map(p => `
+        <div class="funil-item">
+          <div class="fn" style="background:rgba(255,110,132,.1)"><i data-lucide="alert-circle" style="width:13px;height:13px;color:var(--error)"></i></div>
+          <div class="fi-name">${p}</div>
+          <span class="chip chip-no">Aberta</span>
+        </div>`).join('')
+    : '<div class="empty-state"><span>Sem pendências</span></div>';
+
+  // Campanhas
+  if (currentProject.rawFiles.camp) {
+    const { ativas, pausadas } = parseCampanhas(currentProject.rawFiles.camp);
+    document.querySelector('#t-camp tbody:first-of-type').innerHTML = ativas.length
+      ? ativas.map(r=>`<tr><td>${r['Campanha']||'—'}</td><td>${r['Objetivo']||'—'}</td><td>${r['Verba/dia']||'—'}</td><td><span class="sbadge sp">${r['Status']||'—'}</span></td></tr>`).join('')
+      : `<tr><td colspan="4"><div class="empty-state"><span>Nenhuma campanha ativa</span><p>Preencha Campanhas/CAMPANHAS.md no vault</p></div></td></tr>`;
+  }
+
+  // Copy
+  if (currentProject.rawFiles.copy) {
+    const { headline, sub } = parseCopy(currentProject.rawFiles.copy);
+    const hEl = document.getElementById('c-headline');
+    const sEl = document.getElementById('c-sub');
+    if (headline) { hEl.textContent = headline; hEl.classList.remove('empty'); }
+    if (sub)      { sEl.textContent = sub;       sEl.classList.remove('empty'); }
+  }
+
+  // Criativos
+  if (currentProject.rawFiles.cria) {
+    const { ativos, direcao } = parseCriativos(currentProject.rawFiles.cria);
+    document.querySelector('#t-cria tbody').innerHTML = ativos.length
+      ? ativos.map(r=>`<tr><td>${r['Nome']||'—'}</td><td>${r['Formato']||'—'}</td><td>${r['CTR']||'—'}</td><td><span class="sbadge sp">${r['Status']||'—'}</span></td></tr>`).join('')
+      : `<tr><td colspan="4"><div class="empty-state"><span>Nenhum criativo</span><p>Preencha Criativos/CRIATIVOS.md</p></div></td></tr>`;
+    if (direcao.length) {
+      const dEl = document.getElementById('t-cria').querySelector('.txt-val');
+      if(dEl){ dEl.innerHTML = direcao.map(d=>`<div style="margin-bottom:.3rem">${d}</div>`).join(''); dEl.classList.remove('empty'); }
+    }
+  }
+
+  // Análises
+  if (currentProject.rawFiles.anal) {
+    const { metrics, hist } = parseAnalises(currentProject.rawFiles.anal);
+    const cpv  = document.getElementById('m-cpv')  || document.querySelector('#t-anal .mval');
+    const roas = document.getElementById('m-roas');
+    const vnd  = document.getElementById('m-vendas');
+    if (cpv  && metrics['Custo por venda'])  { cpv.textContent  = metrics['Custo por venda'];  cpv.style.fontSize='1.2rem'; }
+    if (roas && metrics['ROAS'])             { roas.textContent = metrics['ROAS'];              }
+    if (vnd  && metrics['Vendas totais'])    { vnd.textContent  = metrics['Vendas totais'];     }
+    if (hist.length) {
+      document.querySelector('#t-anal tbody').innerHTML = hist.map(r =>
+        `<tr><td>${r['Periodo']||'—'}</td><td>${r['Vendas']||'—'}</td><td>${r['Investimento']||'—'}</td><td>${r['Lucro']||'—'}</td><td>${r['ROAS']||'—'}</td></tr>`
+      ).join('');
+    }
+  }
+
+  switchTabById('t-funil');
+  document.getElementById('drawer').classList.add('open');
+  document.getElementById('backdrop').classList.add('open');
+  document.body.style.overflow = 'hidden';
+  lucide.createIcons();
+}
+
+function closeDrawer() {
+  document.getElementById('drawer').classList.remove('open');
+  document.getElementById('backdrop').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function switchTab(btn, id) {
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  switchTabById(id);
+}
+
+function switchTabById(id) {
+  document.querySelectorAll('.tab-pnl').forEach(p => p.classList.remove('active'));
+  const el = document.getElementById(id);
+  if (el) el.classList.add('active');
+  lucide.createIcons();
+}
+
+// ══════════════════════════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════════════════════════
+document.addEventListener('DOMContentLoaded', () => {
+  renderPipeline();
+  renderSkills();
+  renderConhecimento();
+  lucide.createIcons();
+  loadAllData(); // busca dados do GitHub e re-renderiza
+});
+
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeDrawer(); });
+</script>
+</body>
+</html>
