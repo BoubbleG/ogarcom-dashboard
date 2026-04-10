@@ -1,63 +1,15 @@
 {
-  "atualizado": "2026-04-10T17:14:56Z",
+  "atualizado": "2026-04-10T18:28:53Z",
   "periodo": "last_30d",
   "contas": {
     "GESSEIRO-MASTER": {
-      "gasto": 5219.36,
-      "impressoes": 330935,
-      "cliques": 11362,
-      "ctr": 3.43,
-      "cpm": 15.77,
-      "cpc": 0.46,
-      "vendas": 838,
-      "receita": 20423.38,
-      "lucro": 15204.02,
-      "roas": 3.91,
-      "roi": 291.3,
-      "cpa": 6.23,
-      "initiate_checkout": 1427,
-      "cpi": 3.66,
-      "visitas_pagina": 6719,
-      "cpv": 0.78,
-      "icr": 58.72
+      "erro": "400 Client Error: Bad Request for url: https://graph.facebook.com/v19.0/act_1398408144771165/insights?access_token=EAASF9crvUP4BRDbkExQzSCbiaBvbjz8rg4VSzqS2o3xESCM4fXZCl1TZC9cJ7CVPkL3jnZBAZCzbEblDl9zakojosXMXQrfkpWGRgvz3RZCcTQ0zZC2l7YwgDnmhSkx0m0IvPtPZCDhPb0tQPoH469Xt8zDD8ugXY9cZBlCjgZB7cYcMFiFY0EyTbunOEigEToj57ZBFlgWH7UuWgfTg3J2xa4IpoQ8GthZBrQchTLNG84TAwTYVjbwVO3PlvEBjXasMARbsLRZAfwMWhMxZAZAOyJbfJcU7viR6kaVUourwZDZD&fields=spend%2Cimpressions%2Cclicks%2Cctr%2Ccpm%2Ccpc%2Cactions%2Caction_values%2Cpurchase_roas%2Ccost_per_action_type&date_preset=last_30d&level=account"
     },
     "PINTOR-PRO": {
-      "gasto": 1152.98,
-      "impressoes": 58885,
-      "cliques": 1995,
-      "ctr": 3.39,
-      "cpm": 19.58,
-      "cpc": 0.58,
-      "vendas": 143,
-      "receita": 3515.1,
-      "lucro": 2362.12,
-      "roas": 3.05,
-      "roi": 204.87,
-      "cpa": 8.06,
-      "initiate_checkout": 277,
-      "cpi": 4.16,
-      "visitas_pagina": 1234,
-      "cpv": 0.93,
-      "icr": 51.62
+      "erro": "400 Client Error: Bad Request for url: https://graph.facebook.com/v19.0/act_1331372135233963/insights?access_token=EAASF9crvUP4BRDbkExQzSCbiaBvbjz8rg4VSzqS2o3xESCM4fXZCl1TZC9cJ7CVPkL3jnZBAZCzbEblDl9zakojosXMXQrfkpWGRgvz3RZCcTQ0zZC2l7YwgDnmhSkx0m0IvPtPZCDhPb0tQPoH469Xt8zDD8ugXY9cZBlCjgZB7cYcMFiFY0EyTbunOEigEToj57ZBFlgWH7UuWgfTg3J2xa4IpoQ8GthZBrQchTLNG84TAwTYVjbwVO3PlvEBjXasMARbsLRZAfwMWhMxZAZAOyJbfJcU7viR6kaVUourwZDZD&fields=spend%2Cimpressions%2Cclicks%2Cctr%2Ccpm%2Ccpc%2Cactions%2Caction_values%2Cpurchase_roas%2Ccost_per_action_type&date_preset=last_30d&level=account"
     },
     "SINDICO-PRO": {
-      "gasto": 1055.61,
-      "impressoes": 23344,
-      "cliques": 826,
-      "ctr": 3.54,
-      "cpm": 45.22,
-      "cpc": 1.28,
-      "vendas": 95,
-      "receita": 3350.5,
-      "lucro": 2294.89,
-      "roas": 3.17,
-      "roi": 217.4,
-      "cpa": 11.11,
-      "initiate_checkout": 73,
-      "cpi": 14.46,
-      "visitas_pagina": 523,
-      "cpv": 2.02,
-      "icr": 130.14
+      "erro": "400 Client Error: Bad Request for url: https://graph.facebook.com/v19.0/act_2302574626902808/insights?access_token=EAASF9crvUP4BRDbkExQzSCbiaBvbjz8rg4VSzqS2o3xESCM4fXZCl1TZC9cJ7CVPkL3jnZBAZCzbEblDl9zakojosXMXQrfkpWGRgvz3RZCcTQ0zZC2l7YwgDnmhSkx0m0IvPtPZCDhPb0tQPoH469Xt8zDD8ugXY9cZBlCjgZB7cYcMFiFY0EyTbunOEigEToj57ZBFlgWH7UuWgfTg3J2xa4IpoQ8GthZBrQchTLNG84TAwTYVjbwVO3PlvEBjXasMARbsLRZAfwMWhMxZAZAOyJbfJcU7viR6kaVUourwZDZD&fields=spend%2Cimpressions%2Cclicks%2Cctr%2Ccpm%2Ccpc%2Cactions%2Caction_values%2Cpurchase_roas%2Ccost_per_action_type&date_preset=last_30d&level=account"
     }
   }
 }
