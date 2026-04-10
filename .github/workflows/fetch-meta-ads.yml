@@ -1,34 +1,13 @@
 name: Fetch Meta Ads Data
+# Desabilitado: UTMify bloqueia IPs do GitHub Actions.
+# Os dados são atualizados localmente pelo SINCRONIZAR.bat (scripts/fetch_utmify.js)
 
 on:
-  schedule:
-    - cron: '0 */6 * * *'   # a cada 6 horas
-  workflow_dispatch:          # permite rodar manualmente
+  workflow_dispatch: # mantido apenas para rodar manualmente se necessário
 
 jobs:
-  fetch:
+  info:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
-
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
-
-      - name: Buscar dados da UTMify
-        env:
-          UTMIFY_TOKEN: ${{ secrets.UTMIFY_TOKEN }}
-        run: python scripts/fetch_utmify.py
-
-      - name: Commit e push
-        run: |
-          git config user.email "action@github.com"
-          git config user.name "OGARCOM Bot"
-          git add data/meta-ads.json
-          git diff --staged --quiet || git commit -m "update: meta ads $(date -u +'%Y-%m-%d %H:%M UTC')"
-          git push
+      - name: Info
+        run: echo "Dados atualizados via SINCRONIZAR.bat localmente."
