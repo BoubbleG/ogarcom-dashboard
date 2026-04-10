@@ -21,7 +21,8 @@ Sessão focada em finalizar a infraestrutura completa do OGARCOM: dashboard hosp
 
 ## Pendências
 
-- [ ] Rodar os 2 comandos MCP no notebook (Obsidian + Stitch) — arquivo `System/SETUP-NOVO-PC.md`
+- [x] Rodar os 2 comandos MCP no notebook (Obsidian + Stitch) — arquivo `System/SETUP-NOVO-PC.md` ✓ 2026-04-10
+- [x] Watcher automático instalado e testado ✓ 2026-04-10
 - [ ] Testar o SINCRONIZAR.bat após mudanças reais no vault
 - [ ] Preencher dados reais nos arquivos .md dos 3 projetos (Campanhas, Copy, Criativos, Página, Análises)
 - [ ] Confirmar status dos entregáveis nos 3 projetos (Etapa 6)
