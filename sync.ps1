@@ -63,7 +63,7 @@ foreach ($log in $logs) {
 # ── Buscar dados da UTMify ──────────────────────────────
 Write-Host ""
 Write-Host "  Atualizando Meta Ads via UTMify..." -ForegroundColor Cyan
-$nodeResult = node "$REPO\scripts\fetch_utmify.js" 2>&1
+$nodeResult = node "$REPO\scripts\fetch_utmify.cjs" 2>&1
 Write-Host $nodeResult
 if ($LASTEXITCODE -ne 0) {
     Write-Host "  [AVISO] UTMify falhou, mantendo dados anteriores." -ForegroundColor Yellow
