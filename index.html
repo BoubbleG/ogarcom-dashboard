@@ -253,6 +253,22 @@
     .empty-state { text-align:center;padding:2rem 1rem;color:var(--on-surface-variant); }
     .empty-state span { font-size:.6rem;font-weight:700;text-transform:uppercase;letter-spacing:.15em;display:block;margin-bottom:.3rem; }
     .empty-state p { font-size:.7rem; }
+
+    /* META ADS */
+    .ads-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:1rem; }
+    @media(max-width:900px){ .ads-grid { grid-template-columns:1fr; } }
+    .ads-card { background:var(--surface-mid); border:1px solid var(--outline-faint); border-radius:16px; padding:1.25rem; }
+    .ads-card-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; }
+    .ads-card-title { font-size:.85rem; font-weight:700; color:var(--on-surface); }
+    .ads-badge { font-size:.5rem; font-weight:700; text-transform:uppercase; letter-spacing:.15em; background:rgba(189,157,255,.12); color:var(--primary); padding:.25rem .6rem; border-radius:99px; }
+    .ads-metrics-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:.6rem; }
+    .ads-metric { background:var(--surface-high); border-radius:10px; padding:.6rem .75rem; }
+    .ads-metric-val { font-size:1rem; font-weight:800; color:var(--on-surface); line-height:1.1; }
+    .ads-metric-val.green { color:var(--tertiary-dim); }
+    .ads-metric-val.red   { color:var(--error); }
+    .ads-metric-lbl { font-size:.5rem; font-weight:600; text-transform:uppercase; letter-spacing:.1em; color:var(--on-surface-variant); margin-top:.2rem; }
+    .ads-updated { font-size:.55rem; color:var(--on-surface-variant); text-align:right; margin-top:.75rem; }
+    .ads-divider { font-size:.5rem; font-weight:700; text-transform:uppercase; letter-spacing:.15em; color:var(--on-surface-variant); margin:.75rem 0 .4rem; grid-column:1/-1; border-bottom:1px solid var(--outline-faint); padding-bottom:.3rem; }
   </style>
 </head>
 <body>
@@ -292,6 +308,20 @@
       </div>
     </div>
     <div class="projects-grid" id="projects-grid"></div>
+  </section>
+
+  <!-- ── 1b. META ADS ────────────────────────────────────────── -->
+  <section>
+    <div class="sec-head">
+      <div>
+        <div class="sec-label">Tráfego Pago</div>
+        <h2>Meta Ads Performance</h2>
+      </div>
+      <span id="ads-periodo" style="font-size:.55rem;font-weight:700;text-transform:uppercase;letter-spacing:.3em;color:var(--on-surface-variant)">Últimos 30 dias</span>
+    </div>
+    <div class="ads-grid" id="ads-grid">
+      <div class="empty-state" style="grid-column:1/-1"><span>Carregando dados do Meta Ads...</span></div>
+    </div>
   </section>
 
   <!-- ── 2. PIPELINE ─────────────────────────────────────────── -->
@@ -854,6 +884,10 @@ async function loadAllData() {
   const globalPct = Math.round(totalDone / (PROJECTS.length * 6) * 100);
   document.querySelector('.global-num').textContent = globalPct + '%';
 
+  // Meta Ads
+  const metaAdsJson = await fetchFile('data/meta-ads.json');
+  const metaAds = metaAdsJson ? JSON.parse(metaAdsJson) : null;
+
   // Render tudo
   renderProjects();
   renderPipeline();
@@ -861,8 +895,76 @@ async function loadAllData() {
   renderSessionLogs(SESSION_LOGS);
   renderMemory(SESSION_LOGS);
   renderConhecimento();
+  renderMetaAds(metaAds);
   lucide.createIcons();
   showLoading(false);
+}
+
+function fmt(val, prefix='', suffix='') {
+  if (val === null || val === undefined || isNaN(val)) return '—';
+  return prefix + Number(val).toLocaleString('pt-BR', {maximumFractionDigits:2}) + suffix;
+}
+
+function renderMetaAds(data) {
+  const el = document.getElementById('ads-grid');
+  if (!data || !data.contas) {
+    el.innerHTML = `<div class="empty-state" style="grid-column:1/-1"><span>Sem dados</span><p>O workflow do GitHub Actions ainda não rodou.<br>Acesse Actions → "Fetch Meta Ads Data" → Run workflow.</p></div>`;
+    return;
+  }
+
+  const projectMap = {
+    'GESSEIRO-MASTER': 'Gesseiro Master',
+    'PINTOR-PRO':      'Pintor Pro',
+    'SINDICO-PRO':     'Sindico Pro',
+  };
+
+  const updated = data.atualizado ? new Date(data.atualizado).toLocaleString('pt-BR') : '—';
+
+  el.innerHTML = Object.entries(data.contas).map(([id, m]) => {
+    if (m.erro) return `
+      <div class="ads-card">
+        <div class="ads-card-header">
+          <div class="ads-card-title">${projectMap[id] || id}</div>
+          <span class="ads-badge" style="background:rgba(255,110,132,.1);color:var(--error)">Erro</span>
+        </div>
+        <div class="empty-state"><span>Falha ao buscar dados</span><p>${m.erro}</p></div>
+      </div>`;
+
+    const lucroCls = m.lucro >= 0 ? 'green' : 'red';
+    const roiCls   = m.roi   >= 0 ? 'green' : 'red';
+
+    return `
+      <div class="ads-card">
+        <div class="ads-card-header">
+          <div class="ads-card-title">${projectMap[id] || id}</div>
+          <span class="ads-badge">30 dias</span>
+        </div>
+        <div class="ads-metrics-grid">
+          <div class="ads-divider">💰 Financeiro</div>
+          <div class="ads-metric"><div class="ads-metric-val">R$ ${fmt(m.gasto)}</div><div class="ads-metric-lbl">Gastos</div></div>
+          <div class="ads-metric"><div class="ads-metric-val ${lucroCls}">R$ ${fmt(m.lucro)}</div><div class="ads-metric-lbl">Lucro</div></div>
+          <div class="ads-metric"><div class="ads-metric-val ${roiCls}">${fmt(m.roi)}%</div><div class="ads-metric-lbl">ROI</div></div>
+          <div class="ads-metric"><div class="ads-metric-val">${fmt(m.roas)}x</div><div class="ads-metric-lbl">ROAS</div></div>
+          <div class="ads-metric"><div class="ads-metric-val">R$ ${fmt(m.cpa)}</div><div class="ads-metric-lbl">CPA</div></div>
+          <div class="ads-metric"><div class="ads-metric-val">${fmt(m.vendas)}</div><div class="ads-metric-lbl">Vendas</div></div>
+
+          <div class="ads-divider">📊 Alcance</div>
+          <div class="ads-metric"><div class="ads-metric-val">${fmt(m.impressoes)}</div><div class="ads-metric-lbl">Impressões</div></div>
+          <div class="ads-metric"><div class="ads-metric-val">R$ ${fmt(m.cpm)}</div><div class="ads-metric-lbl">CPM</div></div>
+          <div class="ads-metric"><div class="ads-metric-val">${fmt(m.cliques)}</div><div class="ads-metric-lbl">Cliques</div></div>
+          <div class="ads-metric"><div class="ads-metric-val">R$ ${fmt(m.cpc)}</div><div class="ads-metric-lbl">CPC</div></div>
+          <div class="ads-metric"><div class="ads-metric-val">${fmt(m.ctr)}%</div><div class="ads-metric-lbl">CTR</div></div>
+          <div class="ads-metric"><div class="ads-metric-val">${fmt(m.visitas_pagina)}</div><div class="ads-metric-lbl">Visitas</div></div>
+
+          <div class="ads-divider">🎯 Conversão</div>
+          <div class="ads-metric"><div class="ads-metric-val">R$ ${fmt(m.cpv)}</div><div class="ads-metric-lbl">CPV</div></div>
+          <div class="ads-metric"><div class="ads-metric-val">${fmt(m.initiate_checkout)}</div><div class="ads-metric-lbl">Init. Checkout</div></div>
+          <div class="ads-metric"><div class="ads-metric-val">R$ ${fmt(m.cpi)}</div><div class="ads-metric-lbl">CPI</div></div>
+          <div class="ads-metric"><div class="ads-metric-val">${fmt(m.icr)}%</div><div class="ads-metric-lbl">ICR</div></div>
+        </div>
+        <div class="ads-updated">Atualizado: ${updated}</div>
+      </div>`;
+  }).join('');
 }
 
 function defaultFunil() {
