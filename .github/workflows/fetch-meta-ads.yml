@@ -27,6 +27,11 @@ jobs:
       - name: Instalar dependências
         run: pip install requests
 
+      - name: Debug token e contas
+        env:
+          META_ACCESS_TOKEN: ${{ secrets.META_ACCESS_TOKEN }}
+        run: python scripts/debug_token.py
+
       - name: Buscar dados do Meta Ads
         env:
           META_ACCESS_TOKEN: ${{ secrets.META_ACCESS_TOKEN }}
