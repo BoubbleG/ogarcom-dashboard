@@ -721,6 +721,19 @@ async function fetchFile(path) {
   } catch { return null; }
 }
 
+async function fetchJson(path) {
+  try {
+    const res = await fetch(`${API}/${path}?ref=${GH_BRANCH}`, {
+      headers: { 'Accept': 'application/vnd.github.v3+json' }
+    });
+    if (!res.ok) return null;
+    const json = await res.json();
+    const raw  = atob(json.content.replace(/\n/g,''));
+    const bytes = Uint8Array.from(raw, c => c.charCodeAt(0));
+    return JSON.parse(new TextDecoder().decode(bytes));
+  } catch { return null; }
+}
+
 async function listDir(path) {
   try {
     const res = await fetch(`${API}/${path}?ref=${GH_BRANCH}`, {
@@ -885,8 +898,7 @@ async function loadAllData() {
   document.querySelector('.global-num').textContent = globalPct + '%';
 
   // Meta Ads
-  const metaAdsJson = await fetchFile('data/meta-ads.json');
-  const metaAds = metaAdsJson ? JSON.parse(metaAdsJson) : null;
+  const metaAds = await fetchJson('data/meta-ads.json');
 
   // Render tudo
   renderProjects();
