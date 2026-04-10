@@ -3,38 +3,49 @@
 # Rode SINCRONIZAR.bat para atualizar a dashboard
 # ══════════════════════════════════════════════════════════
 
-$VAULT   = "G:\meu drive\ogarcom"
-$REPO    = "G:\meu drive\ogarcom-dashboard"
+$VAULT    = "G:\meu drive\ogarcom"
+$REPO     = "G:\meu drive\ogarcom-dashboard"
 $PROJETOS = @("GESSEIRO-MASTER", "PINTOR-PRO", "SINDICO-PRO")
 
 Write-Host ""
-Write-Host "  OGARCOM — Sincronizando vault..." -ForegroundColor Cyan
+Write-Host "  OGARCOM - Sincronizando vault..." -ForegroundColor Cyan
 Write-Host ""
 
 $erros = 0
 
+# ── Copiar CLAUDE.md ────────────────────────────────────
+$dataDir = "$REPO\data"
+if (-not (Test-Path $dataDir)) { New-Item -ItemType Directory -Path $dataDir | Out-Null }
+if (Test-Path "$VAULT\CLAUDE.md") {
+    Copy-Item -Path "$VAULT\CLAUDE.md" -Destination "$dataDir\CLAUDE.md" -Force
+    Write-Host "  [OK] CLAUDE.md" -ForegroundColor Green
+}
+
 # ── Copiar arquivos dos projetos ────────────────────────
 foreach ($proj in $PROJETOS) {
-    $origem = "$VAULT\Conhecimento\MVT\Projetos\$proj"
+    $origem  = "$VAULT\Conhecimento\MVT\Projetos\$proj"
     $destino = "$REPO\data\$proj"
 
     if (-not (Test-Path $destino)) { New-Item -ItemType Directory -Path $destino | Out-Null }
 
     $arquivos = @(
-        @{ de = "$origem\INDEX.md";                    para = "$destino\INDEX.md"           },
-        @{ de = "$origem\Campanhas\CAMPANHAS.md";      para = "$destino\CAMPANHAS.md"        },
-        @{ de = "$origem\Copy\COPY.md";                para = "$destino\COPY.md"             },
-        @{ de = "$origem\Criativos\CRIATIVOS.md";      para = "$destino\CRIATIVOS.md"        },
-        @{ de = "$origem\Pagina\ESTRUTURA-PAGINA.md";  para = "$destino\ESTRUTURA-PAGINA.md" },
-        @{ de = "$origem\Analises\ANALISES.md";        para = "$destino\ANALISES.md"         }
+        @("$origem\INDEX.md",                   "$destino\INDEX.md"),
+        @("$origem\Campanhas\CAMPANHAS.md",      "$destino\CAMPANHAS.md"),
+        @("$origem\Copy\COPY.md",                "$destino\COPY.md"),
+        @("$origem\Criativos\CRIATIVOS.md",      "$destino\CRIATIVOS.md"),
+        @("$origem\Pagina\ESTRUTURA-PAGINA.md",  "$destino\ESTRUTURA-PAGINA.md"),
+        @("$origem\Analises\ANALISES.md",        "$destino\ANALISES.md")
     )
 
     foreach ($arq in $arquivos) {
-        if (Test-Path $arq.de) {
-            Copy-Item -Path $arq.de -Destination $arq.para -Force
-            Write-Host "  [OK] $proj\$(Split-Path $arq.para -Leaf)" -ForegroundColor Green
+        $de   = $arq[0]
+        $para = $arq[1]
+        $nome = [System.IO.Path]::GetFileName($para)
+        if (Test-Path $de) {
+            Copy-Item -Path $de -Destination $para -Force
+            Write-Host "  [OK] $proj\$nome" -ForegroundColor Green
         } else {
-            Write-Host "  [--] $proj\$(Split-Path $arq.para -Leaf) (nao encontrado)" -ForegroundColor DarkGray
+            Write-Host "  [--] $proj\$nome (nao encontrado)" -ForegroundColor DarkGray
         }
     }
 }
@@ -56,15 +67,18 @@ $nodeResult = node "$REPO\scripts\fetch_utmify.js" 2>&1
 Write-Host $nodeResult
 if ($LASTEXITCODE -ne 0) {
     Write-Host "  [AVISO] UTMify falhou, mantendo dados anteriores." -ForegroundColor Yellow
-    $erros++
+} else {
+    Write-Host "  [OK] meta-ads.json atualizado" -ForegroundColor Green
 }
 
 Write-Host ""
 Write-Host "  Enviando para o GitHub..." -ForegroundColor Cyan
 Write-Host ""
 
-# ── Git: commit e push ──────────────────────────────────
+# ── Git: pull + commit + push ───────────────────────────
 Set-Location $REPO
+
+git pull origin main 2>&1 | Out-Null
 
 $data = Get-Date -Format "yyyy-MM-dd HH:mm"
 
