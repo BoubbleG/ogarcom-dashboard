@@ -47,6 +47,19 @@ tags: []
 ## Decisões & Aprendizados
 <!-- /preserve adiciona aqui automaticamente -->
 
+### 2026-04-10 — Stack de MCPs + Meta Ads
+
+- **MCP da Utmify instalado** via HTTP transport — 13 recursos (vendas, métricas, campanhas, tráfego, UTMs, etc.). Consolida Greenn + Meta Ads num único endpoint. Comando: `claude mcp add utmify --transport http "[URL com token]"`
+- **MCP meta-ads instalado** via `npx -y meta-ads-mcp` com stdio transport — acesso direto à Meta Marketing API. Token injetado via env `META_ACCESS_TOKEN`.
+- **Skill meta-ads-analyzer instalada** em `.claude/skills/meta-ads-analyzer/` — 9 arquivos de referência para diagnóstico expert de campanhas (learning phase, breakdown effect, bid strategies, pacing, ad relevance, auction overlap, etc.)
+- **Stack completa de MCPs ativos:** UTMify, Meta Ads, Figma, Magic Patterns, Stitch
+- **IDs das contas Meta Ads:**
+  - GESSEIRO MASTER → `act_1398408144771165`
+  - PINTOR PRO → `act_474553761919581`
+  - SINDICO PRO → `act_3148291251975108`
+- **Token Meta expira em ~60 dias** — renovar em developers.facebook.com → Graph API Explorer. App Secret necessário apenas para renovação automática.
+- **Análises de campanha** sempre salvas nos arquivos `ANALISES.md` de cada projeto — nunca criar arquivo separado, acumular com seção datada.
+
 ### 2026-04-10 — MCP Stitch + Infraestrutura Multi-PC
 
 - **MCP do Google Stitch instalado** via `@_davideast/stitch-mcp` com API Key. Claude consegue criar projetos, gerar telas, buscar código HTML/CSS e screenshots direto no Stitch sem o usuário abrir o navegador. Capacidades: `create_project`, `generate_screen_from_text`, `get_screen_code`, `get_screen_image`, `build_site`.
@@ -66,6 +79,28 @@ tags: []
 - **Fluxo de design da dashboard** — Google Stitch = designer (gera protótipo visual) → Claude = programador (converte para HTML funcional e adiciona lógica).
 - **GitHub Pages para hospedagem** — username: BoubbleG. URL futura: `https://BoubbleG.github.io/ogarcom-dashboard`. Próximo passo: criar repo e conectar GitHub API para leitura automática do vault.
 - **Skills de sistema** agora visíveis na dashboard separadas das skills MVT (4 cards verdes: /resume, /compress, /preserve, /cleanup).
+
+### 2026-04-10 — Estrutura de Campanhas Meta Ads (padrão permanente)
+
+- **ABO = Laboratório de testes** — cada conjunto tem 1 criativo, R$ 30/dia, 7 dias para validar. Critério: ROAS > 1,8x + mínimo 5 vendas → migra para CBO. Menos de 3 vendas → pausa.
+- **CBO = Escala (estrutura 1-1-X)** — 1 campanha, 1 conjunto amplo, vários criativos validados. Budget mínimo R$ 100/dia. Só entra criativo aprovado pela ABO.
+- **Fluxo fixo:** produzir criativo → testar na ABO → validar → migrar para CBO → escalar +20% a cada 3-4 dias.
+- **Nunca aumentar budget > 20% por vez** — reinicia aprendizado. Nunca duplicar campanha para escalar.
+- **Criativo é o novo targeting** (pós-Andromeda out/2025) — targeting amplo + biblioteca de criativos validados supera segmentação manual.
+- **Guia completo salvo em** `Conhecimento/META-ADS-ESTRUTURA-COMPLETA.md` — referência para estrutura, teste, escala e métricas de saúde.
+- **IDs dos conjuntos vencedores do Gesseiro Master:**
+  - Conjunto PACK AUD (CBO): `120241274580780177` — criativos: AD48, AD49, AD46
+  - Conjunto AD51 (ABO): `120241758434820177` — melhor ROAS da estrutura (2,29x)
+- **Conjunto CONTROLE** (`120240790784360177`) pausado em 10/04/2026 — Hook rates baixos, 3 vendas em R$ 65 gastos.
+
+### 2026-04-11 — Ferramentas de Transcrição Instaladas no PC
+
+- **Whisper (OpenAI) instalado** via `python -m pip install openai-whisper` — modelo `base` é suficiente para português
+- **FFmpeg instalado** via `winget install Gyan.FFmpeg`
+- **Caminho do ffmpeg:** `C:\Users\pc\AppData\Local\Microsoft\WinGet\Packages\Gyan.FFmpeg_Microsoft.Winget.Source_8wekyb3d8bbwe\ffmpeg-8.1-full_build\bin\`
+- **Como usar no Python:** antes de importar whisper, adicionar o diretório ao PATH: `os.environ['PATH'] = r'C:\Users\pc\...\bin' + os.pathsep + os.environ['PATH']`
+- **Uso:** `model = whisper.load_model('base')` → `result = model.transcribe(path, language='pt')` → `result['text']`
+- Transcrição funciona diretamente em `.mov` e `.mp4` sem conversão prévia
 
 ### 2026-04-10 — Setup do Vault
 
@@ -126,6 +161,7 @@ Todas as skills ficam em `G:\Meu Drive\OGARCOM\Skills\`. Quando o usuário chama
 - `/cleanup` — remove logs antigos e consolida
 
 ### Skills MVT
+- `/criativo-mvt` — cria roteiros de criativos pelo método MVT, consulta biblioteca e evita repetição
 - `/agente-mestre-mvt` — agente mestre do método MVT
 - `/auditor-mvt` — audita copy/oferta pelo filtro MVT
 - `/concepcao-oferta-mvt` — concepção de ofertas
