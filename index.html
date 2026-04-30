@@ -275,6 +275,37 @@
     .ads-metric-lbl { font-size:.5rem; font-weight:600; text-transform:uppercase; letter-spacing:.1em; color:var(--on-surface-variant); margin-top:.2rem; }
     .ads-updated { font-size:.55rem; color:var(--on-surface-variant); text-align:right; margin-top:.75rem; }
     .ads-divider { font-size:.5rem; font-weight:700; text-transform:uppercase; letter-spacing:.15em; color:var(--on-surface-variant); margin:.75rem 0 .4rem; grid-column:1/-1; border-bottom:1px solid var(--outline-faint); padding-bottom:.3rem; }
+
+    /* HOJE — visão de tarefas do dia */
+    .hoje-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(290px,1fr)); gap:.85rem; }
+    .hoje-card { background:var(--surface-low); border:1px solid var(--outline-faint); border-radius:.75rem; padding:1rem 1.15rem; transition:transform .2s, border-color .2s; }
+    .hoje-card:hover { transform:translateY(-2px); border-color:var(--primary); }
+    .hoje-card.late { border-color:rgba(255,110,132,.55); background:linear-gradient(135deg,var(--surface-low),rgba(255,110,132,.04)); }
+    .hoje-card.today { border-color:rgba(245,158,11,.55); background:linear-gradient(135deg,var(--surface-low),rgba(245,158,11,.04)); }
+    .hoje-head { display:flex; justify-content:space-between; align-items:flex-start; gap:.5rem; margin-bottom:.5rem; }
+    .hoje-prazo { font-size:.65rem; font-weight:800; text-transform:uppercase; letter-spacing:.1em; }
+    .hoje-prazo.late { color:var(--error); }
+    .hoje-prazo.today { color:var(--warn); }
+    .hoje-prazo.next { color:var(--on-surface-variant); }
+    .hoje-prio { font-size:.55rem; font-weight:800; padding:.18rem .5rem; border-radius:.3rem; letter-spacing:.1em; }
+    .hoje-prio.alta { background:rgba(255,110,132,.15); color:var(--error); }
+    .hoje-prio.media { background:rgba(245,158,11,.15); color:var(--warn); }
+    .hoje-prio.baixa { background:rgba(189,157,255,.12); color:var(--primary); }
+    .hoje-text { font-size:.85rem; font-weight:600; line-height:1.35; margin-bottom:.55rem; color:var(--on-surface); }
+    .hoje-meta { display:flex; gap:.4rem; flex-wrap:wrap; font-size:.6rem; color:var(--on-surface-variant); align-items:center; }
+    .hoje-proj { font-weight:800; text-transform:uppercase; letter-spacing:.1em; color:var(--primary); font-size:.55rem; }
+    .hoje-tag { background:var(--surface-mid); padding:.1rem .4rem; border-radius:.25rem; font-weight:600; }
+    .hoje-empty { grid-column:1/-1; text-align:center; padding:2rem; color:var(--on-surface-variant); font-size:.85rem; }
+    .hoje-total { font-size:2.5rem; font-weight:900; color:var(--primary); letter-spacing:-.04em; line-height:1; }
+
+    /* Tasks no drawer */
+    .task-list { display:flex; flex-direction:column; gap:.5rem; }
+    .task-item { background:var(--surface-mid); border:1px solid var(--outline-faint); border-radius:.5rem; padding:.6rem .85rem; display:flex; gap:.7rem; align-items:flex-start; }
+    .task-check { font-size:1rem; flex-shrink:0; padding-top:1px; }
+    .task-body { flex:1; min-width:0; }
+    .task-text { font-size:.82rem; color:var(--on-surface); line-height:1.4; font-weight:500; }
+    .task-text.done { text-decoration:line-through; color:var(--on-surface-variant); }
+    .task-meta { display:flex; gap:.4rem; align-items:center; flex-wrap:wrap; margin-top:.3rem; font-size:.6rem; color:var(--on-surface-variant); }
   </style>
 </head>
 <body>
@@ -300,6 +331,23 @@
 
 <!-- ══ MAIN ════════════════════════════════════════════════════ -->
 <main>
+
+  <!-- ── 0. HOJE ─────────────────────────────────────────────── -->
+  <section>
+    <div class="sec-head">
+      <div>
+        <div class="sec-label">Foco do dia</div>
+        <h2>Hoje</h2>
+      </div>
+      <div style="text-align:right">
+        <div class="hoje-total" id="hoje-total">—</div>
+        <div class="global-sub">Em foco agora</div>
+      </div>
+    </div>
+    <div class="hoje-grid" id="hoje-grid">
+      <div class="hoje-empty"><span>Carregando tarefas do dia...</span></div>
+    </div>
+  </section>
 
   <!-- ── 1. PROJETOS ─────────────────────────────────────────── -->
   <section>
@@ -521,8 +569,8 @@
         <span class="nav-lbl">Análise</span>
       </button>
       <button class="nav-btn" onclick="switchTab(this,'t-pend')">
-        <div class="nav-icon"><i data-lucide="clock" style="width:16px;height:16px"></i></div>
-        <span class="nav-lbl">Pend.</span>
+        <div class="nav-icon"><i data-lucide="list-todo" style="width:16px;height:16px"></i></div>
+        <span class="nav-lbl">Tarefas</span>
       </button>
     </nav>
 
@@ -665,11 +713,19 @@
         </div>
       </div>
 
-      <!-- PENDÊNCIAS -->
+      <!-- TAREFAS -->
       <div id="t-pend" class="tab-pnl">
         <div class="d-sec">
-          <div class="d-sec-head"><h4>Pendências do Projeto</h4></div>
-          <div class="funil-list" id="pend-list"></div>
+          <div class="d-sec-head"><h4>A fazer</h4></div>
+          <div class="task-list" id="tasks-todo"><div class="empty-state"><span>Carregando...</span></div></div>
+        </div>
+        <div class="d-sec">
+          <div class="d-sec-head"><h4>Em andamento</h4></div>
+          <div class="task-list" id="tasks-doing"></div>
+        </div>
+        <div class="d-sec">
+          <div class="d-sec-head"><h4>Concluídas (últimos 7 dias)</h4></div>
+          <div class="task-list" id="tasks-done"></div>
         </div>
       </div>
 
@@ -849,6 +905,77 @@ function parseAnalises(md) {
   return { metrics, hist };
 }
 
+// Parse de TASKS.md → { todo, doing, done }
+function parseTasksMd(md) {
+  const out = { todo: [], doing: [], done: [] };
+  if (!md) return out;
+  const sectionMap = {
+    'A fazer':'todo',
+    'Em andamento':'doing',
+    'Concluídas (últimos 7 dias)':'done',
+    'Concluidas (ultimos 7 dias)':'done',
+  };
+  let current = null;
+  md.split('\n').forEach(line => {
+    const sec = line.match(/^##\s+(.+?)\s*$/);
+    if (sec) {
+      current = sectionMap[sec[1].trim()] || null;
+      return;
+    }
+    if (!current) return;
+    const t = line.match(/^-\s*\[([ x])\]\s*(.+)$/);
+    if (!t) return;
+    const done = t[1] === 'x';
+    let text = t[2];
+    const prio = (text.match(/!(alta|media|baixa)\b/) || [])[1] || null;
+    const prazo = (text.match(/@(\d{4}-\d{2}-\d{2})/) || [])[1] || null;
+    const tags = [...text.matchAll(/#(\w+)/g)].map(x => x[1]);
+    const clean = text
+      .replace(/!(alta|media|baixa)\b/g, '')
+      .replace(/@\d{4}-\d{2}-\d{2}/g, '')
+      .replace(/#\w+/g, '')
+      .replace(/\s+—\s+\d{4}-\d{2}-\d{2}\s*$/, '')
+      .replace(/\s+/g, ' ')
+      .trim();
+    out[current].push({ done, text: clean, prio, prazo, tags });
+  });
+  return out;
+}
+
+// Parse do HOJE.md (formato gerado por gerar_hoje.py)
+function parseHojeMd(md) {
+  if (!md) return [];
+  const items = [];
+  let inProj = false;
+  const PRIO = { '🔴':'alta', '🟡':'media', '🔵':'baixa' };
+  // Linhas com prazo: "- **02/05** · 🔴 · `PROJETO` · texto · #tag1 #tag2"
+  // Linhas sem prazo: "- 🔴 · `PROJETO` · texto · #tag1 #tag2"
+  const reDate = /^- \*\*(\d{2}\/\d{2})\*\* · ([🔴🟡🔵]) · `([^`]+)` · (.+?)$/;
+  const reNoDate = /^- ([🔴🟡🔵]) · `([^`]+)` · (.+?)$/;
+  md.split('\n').forEach(line => {
+    if (line.startsWith('## Por projeto')) inProj = true;
+    if (inProj) return;
+    let m = line.match(reDate);
+    if (m) {
+      const [, prazo, emoji, proj, rest] = m;
+      const parts = rest.split(' · ');
+      const text = parts[0];
+      const tags = parts[1] ? parts[1].split(/\s+/).filter(s=>s.startsWith('#')).map(s=>s.slice(1)) : [];
+      items.push({ prazo, prio: PRIO[emoji], proj, text, tags, hasDate: true });
+      return;
+    }
+    m = line.match(reNoDate);
+    if (m) {
+      const [, emoji, proj, rest] = m;
+      const parts = rest.split(' · ');
+      const text = parts[0];
+      const tags = parts[1] ? parts[1].split(/\s+/).filter(s=>s.startsWith('#')).map(s=>s.slice(1)) : [];
+      items.push({ prazo: null, prio: PRIO[emoji], proj, text, tags, hasDate: false });
+    }
+  });
+  return items;
+}
+
 // Parse de session log
 function parseSessionLog(md, filename) {
   const date    = parseFrontmatter(md,'date') || filename.slice(0,10);
@@ -884,13 +1011,14 @@ async function loadAllData() {
   // Buscar todos os projetos em paralelo
   await Promise.all(PROJECTS.map(async (proj) => {
     const base = `data/${proj.id}`;
-    const [indexMd, campMd, copyMd, criaMd, pagMd, analMd] = await Promise.all([
+    const [indexMd, campMd, copyMd, criaMd, pagMd, analMd, tasksMd] = await Promise.all([
       fetchFile(`${base}/INDEX.md`),
       fetchFile(`${base}/CAMPANHAS.md`),
       fetchFile(`${base}/COPY.md`),
       fetchFile(`${base}/CRIATIVOS.md`),
       fetchFile(`${base}/ESTRUTURA-PAGINA.md`),
       fetchFile(`${base}/ANALISES.md`),
+      fetchFile(`${base}/TASKS.md`),
     ]);
 
     if (indexMd) {
@@ -904,9 +1032,13 @@ async function loadAllData() {
     }
 
     proj.rawFiles = {
-      camp: campMd, copy: copyMd, cria: criaMd, pag: pagMd, anal: analMd
+      camp: campMd, copy: copyMd, cria: criaMd, pag: pagMd, anal: analMd, tasks: tasksMd
     };
   }));
+
+  // Hoje (agregado)
+  const hojeMd = await fetchFile('data/HOJE.md');
+  renderHoje(parseHojeMd(hojeMd));
 
   // Session logs
   const logFiles = await listDir('data/session-logs');
@@ -1040,6 +1172,63 @@ function showLoading(on) {
 // ══════════════════════════════════════════════════════════════
 const stageLbls = ['ICP','Página','Criat','Testes','Oferta','Entre'];
 
+function renderTasksDrawer(tasksMd) {
+  const groups = parseTasksMd(tasksMd);
+  const renderTask = t => {
+    const prioHtml = t.prio
+      ? `<span class="hoje-prio ${t.prio}" style="font-size:.5rem">${t.prio.toUpperCase()}</span>`
+      : '';
+    const prazoHtml = t.prazo ? `<span>📅 ${t.prazo}</span>` : '';
+    const tagsHtml = t.tags.map(tag => `<span class="hoje-tag">#${tag}</span>`).join('');
+    return `<div class="task-item">
+      <div class="task-check">${t.done ? '✅' : '⬜'}</div>
+      <div class="task-body">
+        <div class="task-text ${t.done ? 'done' : ''}">${t.text}</div>
+        <div class="task-meta">${prioHtml}${prazoHtml}${tagsHtml}</div>
+      </div>
+    </div>`;
+  };
+  const empty = txt => `<div class="empty-state"><span>${txt}</span></div>`;
+  document.getElementById('tasks-todo').innerHTML  = groups.todo.length  ? groups.todo.map(renderTask).join('')  : empty('Nenhuma task em A fazer');
+  document.getElementById('tasks-doing').innerHTML = groups.doing.length ? groups.doing.map(renderTask).join('') : empty('Nada em andamento');
+  document.getElementById('tasks-done').innerHTML  = groups.done.length  ? groups.done.map(renderTask).join('')  : empty('Nenhuma concluída nos últimos 7 dias');
+}
+
+function renderHoje(items) {
+  const grid = document.getElementById('hoje-grid');
+  const total = document.getElementById('hoje-total');
+  total.textContent = items.length;
+  if (!items.length) {
+    grid.innerHTML = '<div class="hoje-empty"><span>🎉 Nada urgente. Tudo em dia.</span></div>';
+    return;
+  }
+  const today = new Date(); today.setHours(0,0,0,0);
+  grid.innerHTML = items.map(t => {
+    let cls = 'next';
+    let prazoLbl = t.prazo || 'Sem prazo';
+    if (t.hasDate) {
+      const [d, m] = t.prazo.split('/').map(Number);
+      const pdate = new Date(today.getFullYear(), m - 1, d);
+      if (pdate < today) { cls = 'late'; prazoLbl = '⚠ Atrasada · ' + t.prazo; }
+      else if (pdate.getTime() === today.getTime()) { cls = 'today'; prazoLbl = '📅 Hoje'; }
+      else prazoLbl = '📆 ' + t.prazo;
+    } else {
+      prazoLbl = '⚡ Sem prazo';
+    }
+    return `<div class="hoje-card ${cls}" onclick="openDrawer('${t.proj}')">
+      <div class="hoje-head">
+        <span class="hoje-prazo ${cls}">${prazoLbl}</span>
+        <span class="hoje-prio ${t.prio||'media'}">${(t.prio||'media').toUpperCase()}</span>
+      </div>
+      <div class="hoje-text">${t.text}</div>
+      <div class="hoje-meta">
+        <span class="hoje-proj">${t.proj}</span>
+        ${t.tags.map(tag=>`<span class="hoje-tag">#${tag}</span>`).join('')}
+      </div>
+    </div>`;
+  }).join('');
+}
+
 function renderProjects() {
   document.getElementById('projects-grid').innerHTML = PROJECTS.map(p => `
     <div class="project-card">
@@ -1142,15 +1331,8 @@ function openDrawer(id) {
       <span class="chip ${s.done?'chip-ok':'chip-no'}">${s.done?'Concluído':'Pendente'}</span>
     </div>`).join('');
 
-  // Pendências
-  document.getElementById('pend-list').innerHTML = currentProject.pendencias.length
-    ? currentProject.pendencias.map(p => `
-        <div class="funil-item">
-          <div class="fn" style="background:rgba(255,110,132,.1)"><i data-lucide="alert-circle" style="width:13px;height:13px;color:var(--error)"></i></div>
-          <div class="fi-name">${p}</div>
-          <span class="chip chip-no">Aberta</span>
-        </div>`).join('')
-    : '<div class="empty-state"><span>Sem pendências</span></div>';
+  // Tarefas (TASKS.md do projeto)
+  renderTasksDrawer(currentProject.rawFiles.tasks);
 
   // Campanhas — UTMify real data (fallback to vault markdown)
   const campContainer = document.getElementById('t-camp');

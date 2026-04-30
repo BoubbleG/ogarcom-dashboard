@@ -23,8 +23,10 @@ Ao criar qualquer copy, criativo ou campanha, sempre verificar:
 
 ## Estrutura do Vault
 - `G:\Meu Drive\OGARCOM\+Inbox` — ideias rápidas, capturas do dia
+- `G:\Meu Drive\OGARCOM\Conhecimento\MVT\Projetos\<PROJ>\TASKS.md` — tarefas (a fazer, em andamento, concluídas) por projeto
 - `G:\Meu Drive\OGARCOM\Conhecimento\MVT\Projetos\` — cada projeto com campanhas, copy, criativos e análises
 - `G:\Meu Drive\OGARCOM\Conhecimento\` — técnicas, referências e aprendizados
+- `G:\Meu Drive\OGARCOM\System\HOJE.md` — visão consolidada gerada (não editar à mão)
 - `G:\Meu Drive\OGARCOM\Session-Logs\` — histórico de sessões com Claude
 - `G:\Meu Drive\OGARCOM\Skills\` — todas as skills disponíveis (buscar aqui quando uma skill for chamada)
 
@@ -44,8 +46,47 @@ tags: []
 ---
 ```
 
+## Sistema de Tarefas
+
+Cada projeto tem um arquivo `TASKS.md` em `Conhecimento/MVT/Projetos/<NOME>/TASKS.md`. Existe também o `System/HOJE.md` que **é gerado automaticamente** — nunca edite à mão.
+
+### Formato de uma task
+```
+- [ ] Texto da task !prioridade @YYYY-MM-DD #tag1 #tag2
+```
+
+- **Prioridade** (opcional): `!alta` `!media` `!baixa`
+- **Prazo** (opcional): `@YYYY-MM-DD`
+- **Tags** (opcional, ilimitadas): `#campanha` `#copy` `#criativo` `#manutencao` `#melhoria` `#analise`
+
+### Seções do TASKS.md
+- `## A fazer` — tasks a iniciar
+- `## Em andamento` — tasks ativas
+- `## Concluídas (últimos 7 dias)` — concluídas recentes (formato `- [x] texto — YYYY-MM-DD`)
+
+### Regras pro Claude
+- **Adicionar nova task:** colocar em `## A fazer` com prioridade + prazo quando o usuário mencionar urgência. Se o usuário disser "urgente" ou "preciso já", usar `!alta @<hoje>`.
+- **Mover task:** mudar de seção (apagar da origem, adicionar no destino). Para concluir, mover pra `## Concluídas` e trocar `[ ]` por `[x]` adicionando ` — <data>`.
+- **Nunca editar `System/HOJE.md` à mão** — é gerado por `scripts/gerar_hoje.py` toda vez que o watcher detecta mudança.
+- **Quando o usuário pede "o que tem pra hoje"**, ler `System/HOJE.md` (mais rápido) ou consolidar manualmente os 3 TASKS.md.
+
 ## Decisões & Aprendizados
 <!-- /preserve adiciona aqui automaticamente -->
+
+### 2026-04-15 — Síndico Pro: ICP, Produto e Copy
+
+- **ICP Síndico Pro v2.0 validado** — arquivo em `F:\Usarios\Downloads\ICP_Sindico_v2_Validado.docx`. Validado com 150+ comentários reais do YouTube. Dois perfis: orgânico (voluntário, urgência alta) e profissional (quer captar clientes).
+- **Kit Síndico Pro = 15 documentos prontos** — arquivos em `F:\Usarios\Desktop\SINDICO\KIT SINDICO PRO`. Inclui: atas preenchíveis, contratos PF/MEI, 3 notificações de inadimplência, regulamentos, edital, checklist dia 1-30, guia do que pode sem assembleia, planilhas financeira e de inadimplentes.
+- **3 dores centrais do síndico para copy:** (1) medo de processo + responsabilidade pessoal, (2) inadimplente sem notificação → dinheiro perdido, (3) morador sem regulamento → conflito semanal.
+- **Tom de copy validado para síndico:** afirmações diretas de erro e consequência — sem perguntas. Micro-contextos específicos ("Prestador sem contrato pode te processar.") geram identificação muito mais forte que afirmações genéricas.
+- **Copy da primeira dobra aprovada** — H1: *"Você está gerindo o condomínio do jeito errado — e isso está saindo do seu bolso."* / H2 com 3 micro-situações reais / H3 tangibilizando o kit / CTA: "Quero meu Kit Síndico Pro agora →"
+
+### 2026-04-15 — Biblioteca de Landing Pages
+
+- **Biblioteca de componentes HTML+CSS criada** em `G:\Meu Drive\OGARCOM\Conhecimento\Landing-Pages\` — 11 componentes prontos (Hero, Demonstrativo, Pack, Dor, Prova Social, Oferta, Garantia, FAQ, CTA Final, Botões, Vitrine Carrossel).
+- **Regra permanente:** sempre que um HTML for criado ou recebido → salvar automaticamente `index.html` (versão real) + `mockup.html` (versão com placeholders `[TROCAR:]`). Nunca criar só um dos dois.
+- **Carrossel infinito sem dependência externa** — usar CSS animation `@keyframes translateX` com fileiras LTR/RTL. Mais leve que Swiper, funciona em qualquer ambiente. Componente `11-vitrine-carrossel` é a referência.
+- **Fluxo de uso da biblioteca:** novo projeto → abre `mockup.html` do bloco → troca `[PLACEHOLDERS]` → ajusta `:root` CSS com as cores do projeto → pronto.
 
 ### 2026-04-10 — Stack de MCPs + Meta Ads
 
@@ -92,6 +133,18 @@ tags: []
   - Conjunto PACK AUD (CBO): `120241274580780177` — criativos: AD48, AD49, AD46
   - Conjunto AD51 (ABO): `120241758434820177` — melhor ROAS da estrutura (2,29x)
 - **Conjunto CONTROLE** (`120240790784360177`) pausado em 10/04/2026 — Hook rates baixos, 3 vendas em R$ 65 gastos.
+
+### 2026-04-12 — WordPress Performance (Hostinger + Elementor)
+
+- **LiteSpeed Cache + WP Rocket simultâneos = conflito crítico** — nunca usar os dois juntos. No Hostinger, desativar o LiteSpeed Cache e manter apenas o WP Rocket. Desativar via FTP renomeando a pasta do plugin (RNFR/RNTO via curl).
+- **Fontes customizadas do Elementor** ficam com nomes em MAIÚSCULO no CSS gerado — o override de `font-display` precisa usar os nomes exatos: `INTER`, `ANTONIO` (não `Inter`, `Antonio`). O CSS gerado fica em `wp-content/uploads/elementor/css/post-1468.css`.
+- **font-display permanente no Elementor** — usar o filtro `elementor/custom_fonts/font_display` para garantir `swap` mesmo após regeneração do CSS. Editar o arquivo CSS direto não é permanente.
+- **Perfmatters lazy load** — para excluir uma imagem específica, usar `wp_get_attachment_image_attributes` e adicionar a classe `no-lazy` + atributo `fetchpriority=high`. O filtro `perfmatters_lazy_load_skip_classes` **não existe**.
+- **Mu-plugin em `wp-content/mu-plugins/`** — melhor lugar para otimizações permanentes. Roda sempre, não depende de tema, não é afetado por atualizações. Arquivo criado: `ogarcom-performance.php`.
+- **Acesso FTP via curl** — curl suporta RNFR/RNTO para renomear pastas: `curl ftp://... -Q "RNFR /caminho/antigo" -Q "RNTO /caminho/novo"`. Útil para desativar plugins sem acesso ao WP Admin.
+- **Imagens do servidor Hostinger** — FTP host: `77.37.127.6`, usuário: `u842176657`, pasta base: `/domains/gesseiromaster.site/public_html/`. Trocar senha após uso.
+- **Pillow (Python)** disponível para otimizar imagens localmente — `pip install Pillow`. Usar `quality=72, method=6` para WebP com boa compressão sem perda visual significativa.
+- **Render-blocking do Elementor** (`hooks.min.js`, `i18n.min.js`, `post-4.css`, `post-1468.css`) é limitação estrutural do page builder — aceitar os ~300-570ms como custo fixo do Elementor, não tentar remover.
 
 ### 2026-04-11 — Ferramentas de Transcrição Instaladas no PC
 
