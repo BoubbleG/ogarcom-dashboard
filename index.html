@@ -298,6 +298,32 @@
     .hoje-empty { grid-column:1/-1; text-align:center; padding:2rem; color:var(--on-surface-variant); font-size:.85rem; }
     .hoje-total { font-size:2.5rem; font-weight:900; color:var(--primary); letter-spacing:-.04em; line-height:1; }
 
+    /* How-to banner */
+    .howto-banner { display:flex; align-items:flex-start; gap:.75rem; padding:.85rem 1.1rem; background:linear-gradient(135deg,rgba(189,157,255,.08),rgba(91,240,131,.04)); border:1px solid rgba(189,157,255,.25); border-radius:.75rem; margin-bottom:1.25rem; font-size:.78rem; line-height:1.5; color:var(--on-surface); }
+    .howto-icon { color:var(--primary); flex-shrink:0; padding-top:1px; }
+    .howto-body { flex:1; }
+    .howto-body strong { color:var(--primary); }
+    .howto-body em { font-style:normal; color:var(--tertiary-dim); font-weight:600; }
+    .howto-close { background:none; border:none; color:var(--on-surface-variant); font-size:1.3rem; line-height:1; cursor:pointer; padding:0 .25rem; flex-shrink:0; }
+    .howto-close:hover { color:var(--on-surface); }
+
+    /* Modal */
+    .modal-backdrop { position:fixed; inset:0; background:rgba(0,0,0,.65); backdrop-filter:blur(8px); z-index:80; display:none; align-items:center; justify-content:center; padding:1rem; }
+    .modal-backdrop.open { display:flex; }
+    .modal { background:var(--surface-low); border:1px solid var(--outline-variant); border-radius:1rem; max-width:560px; width:100%; max-height:85vh; overflow-y:auto; padding:1.75rem; }
+    .modal h3 { font-size:1.4rem; font-weight:900; letter-spacing:-.02em; margin-bottom:.4rem; }
+    .modal p { font-size:.85rem; color:var(--on-surface-variant); margin-bottom:1.25rem; line-height:1.5; }
+    .modal-step { background:var(--surface-mid); border:1px solid var(--outline-faint); border-radius:.6rem; padding:.85rem 1rem; margin-bottom:.75rem; }
+    .modal-step-num { display:inline-block; background:var(--primary); color:var(--surface); width:22px; height:22px; border-radius:50%; text-align:center; line-height:22px; font-size:.7rem; font-weight:800; margin-right:.5rem; }
+    .modal-step strong { font-weight:700; color:var(--on-surface); }
+    .modal-code { background:var(--surface); border:1px solid var(--outline-faint); border-radius:.4rem; padding:.6rem .85rem; font-family:'Consolas','Courier New',monospace; font-size:.78rem; color:var(--primary); margin:.5rem 0; word-break:break-all; }
+    .modal-actions { display:flex; gap:.5rem; margin-top:1.25rem; }
+    .btn-modal { padding:.7rem 1.1rem; border-radius:.5rem; font-size:.78rem; font-weight:700; cursor:pointer; border:none; }
+    .btn-modal-primary { background:var(--primary); color:var(--surface); }
+    .btn-modal-primary:hover { background:var(--primary-dim); color:var(--on-surface); }
+    .btn-modal-secondary { background:var(--surface-mid); color:var(--on-surface); border:1px solid var(--outline-faint); }
+    .modal-close { float:right; background:none; border:none; color:var(--on-surface-variant); font-size:1.5rem; cursor:pointer; line-height:1; }
+
     /* Tasks no drawer */
     .task-list { display:flex; flex-direction:column; gap:.5rem; }
     .task-item { background:var(--surface-mid); border:1px solid var(--outline-faint); border-radius:.5rem; padding:.6rem .85rem; display:flex; gap:.7rem; align-items:flex-start; }
@@ -315,8 +341,10 @@
   <div class="header-left">
     <span class="logo">OGARCOM</span>
     <nav>
-      <a href="#" class="active">Dashboard</a>
-      <a href="#">Analytics</a>
+      <a href="#sec-hoje" class="active">Hoje</a>
+      <a href="#sec-projetos">Projetos</a>
+      <a href="#sec-ads">Meta Ads</a>
+      <a href="#sec-skills">Skills</a>
     </nav>
   </div>
   <div class="header-right">
@@ -324,8 +352,8 @@
       <div class="h-ctrl">Central de Controle</div>
       <span class="h-badge">3 Projetos Ativos</span>
     </div>
-    <button class="btn-new">+ Novo Projeto</button>
-    <div class="avatar-wrap"><i data-lucide="user" style="width:18px;height:18px;color:var(--on-surface-variant)"></i></div>
+    <button class="btn-new" onclick="abrirModalNovaTask()">+ Nova Tarefa</button>
+    <button class="btn-new" style="background:var(--surface-mid);color:var(--on-surface);border:1px solid var(--outline-faint)" onclick="abrirModalAjuda()" title="Como usar este dashboard">?</button>
   </div>
 </header>
 
@@ -333,7 +361,7 @@
 <main>
 
   <!-- ── 0. HOJE ─────────────────────────────────────────────── -->
-  <section>
+  <section id="sec-hoje">
     <div class="sec-head">
       <div>
         <div class="sec-label">Foco do dia</div>
@@ -344,13 +372,26 @@
         <div class="global-sub">Em foco agora</div>
       </div>
     </div>
+
+    <!-- Mini guia: como usar o dashboard -->
+    <div class="howto-banner" id="howto-banner">
+      <div class="howto-icon"><i data-lucide="map" style="width:18px;height:18px"></i></div>
+      <div class="howto-body">
+        <strong>Como usar:</strong>
+        Os cards abaixo mostram tarefas atrasadas/desta semana dos 3 projetos.
+        Clique num card pra abrir o projeto.
+        Pra <em>adicionar/concluir tarefas</em>, use o botão <strong>+ Nova Tarefa</strong> no topo (mostra o formato) — ou peça pro Claude na conversa.
+      </div>
+      <button class="howto-close" onclick="document.getElementById('howto-banner').style.display='none'" title="Fechar">×</button>
+    </div>
+
     <div class="hoje-grid" id="hoje-grid">
       <div class="hoje-empty"><span>Carregando tarefas do dia...</span></div>
     </div>
   </section>
 
   <!-- ── 1. PROJETOS ─────────────────────────────────────────── -->
-  <section>
+  <section id="sec-projetos">
     <div class="sec-head">
       <div>
         <div class="sec-label">Portfolio Overview</div>
@@ -365,7 +406,7 @@
   </section>
 
   <!-- ── 1b. META ADS ────────────────────────────────────────── -->
-  <section>
+  <section id="sec-ads">
     <div class="sec-head">
       <div>
         <div class="sec-label">Tráfego Pago</div>
@@ -401,7 +442,7 @@
   </section>
 
   <!-- ── 3. SKILLS ───────────────────────────────────────────── -->
-  <section>
+  <section id="sec-skills">
     <div class="skills-head">
       <div>
         <div class="sec-label purple">Expertise Gallery</div>
@@ -529,6 +570,60 @@
 <!-- ══ BACKDROP ════════════════════════════════════════════════ -->
 <div id="backdrop" onclick="closeDrawer()"></div>
 
+<!-- ══ MODAL: NOVA TAREFA ════════════════════════════════════════ -->
+<div class="modal-backdrop" id="modal-task" onclick="if(event.target===this)fecharModais()">
+  <div class="modal">
+    <button class="modal-close" onclick="fecharModais()">×</button>
+    <h3>+ Nova Tarefa</h3>
+    <p>O dashboard só lê — pra adicionar/concluir tasks você edita o <code>TASKS.md</code> do projeto. Tem 2 caminhos:</p>
+
+    <div class="modal-step">
+      <span class="modal-step-num">1</span><strong>Pelo Claude (mais rápido)</strong><br>
+      <span style="font-size:.78rem;color:var(--on-surface-variant)">Na conversa com o Claude, fala assim:</span>
+      <div class="modal-code">"adiciona uma task no Pintor Pro: rever copy da página, prioridade alta, prazo amanhã"</div>
+      <span style="font-size:.78rem;color:var(--on-surface-variant)">Ele edita o arquivo direto. Em ~1 min aparece aqui.</span>
+    </div>
+
+    <div class="modal-step">
+      <span class="modal-step-num">2</span><strong>Manualmente no Obsidian</strong><br>
+      <span style="font-size:.78rem;color:var(--on-surface-variant)">Abre um destes arquivos:</span>
+      <div class="modal-code">G:\meu drive\ogarcom\Conhecimento\MVT\Projetos\&lt;PROJETO&gt;\TASKS.md</div>
+      <span style="font-size:.78rem;color:var(--on-surface-variant)">Adiciona na seção <strong style="color:var(--primary)">## A fazer</strong> seguindo o formato:</span>
+      <div class="modal-code" id="task-template">- [ ] Texto da task !alta @2026-04-30 #campanha</div>
+      <span style="font-size:.65rem;color:var(--on-surface-variant)">Onde: <code>!alta|!media|!baixa</code> = prioridade · <code>@YYYY-MM-DD</code> = prazo · <code>#tag</code> = categoria</span>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn-modal btn-modal-primary" onclick="copiarTemplate()">📋 Copiar template</button>
+      <button class="btn-modal btn-modal-secondary" onclick="fecharModais()">Fechar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ MODAL: AJUDA ═════════════════════════════════════════════ -->
+<div class="modal-backdrop" id="modal-help" onclick="if(event.target===this)fecharModais()">
+  <div class="modal">
+    <button class="modal-close" onclick="fecharModais()">×</button>
+    <h3>Como usar este dashboard</h3>
+    <p>Visão rápida de pra que serve cada parte.</p>
+
+    <div class="modal-step"><span class="modal-step-num">1</span><strong>Hoje</strong> — cards das tarefas atrasadas, do dia, e da semana. Clica num card → abre o projeto.</div>
+    <div class="modal-step"><span class="modal-step-num">2</span><strong>Active Projects</strong> — os 3 projetos com progresso do funil MVT (6 etapas). "Ver Detalhes" abre o painel lateral com Funil, Campanhas, Copy, Criativos, Página, Análises e Tarefas.</div>
+    <div class="modal-step"><span class="modal-step-num">3</span><strong>Meta Ads</strong> — gasto/ROI/vendas direto da Meta Ads API. Botões mudam o período (hoje/3d/7d/30d).</div>
+    <div class="modal-step"><span class="modal-step-num">4</span><strong>Skills</strong> — lista das skills MVT/sistema disponíveis no Claude. Não clicáveis aqui — chame na conversa: <code style="color:var(--primary)">/criativo-mvt</code>, <code style="color:var(--primary)">/icp-mvt</code>, etc.</div>
+    <div class="modal-step"><span class="modal-step-num">5</span><strong>Sessões & Memória</strong> — histórico de conversas com o Claude e saúde da memória.</div>
+
+    <p style="margin-top:1rem;padding:.85rem;background:var(--surface-mid);border-radius:.5rem;font-size:.78rem;color:var(--on-surface)">
+      💡 <strong>Dado fica desatualizado?</strong> Rode <code style="color:var(--primary)">SINCRONIZAR.bat</code> na pasta do dashboard. Ou deixa o <code style="color:var(--primary)">WATCHER</code> rodando (instala via <code style="color:var(--primary)">INSTALAR-STARTUP.bat</code>) — ele sincroniza sozinho.
+    </p>
+
+    <div class="modal-actions">
+      <button class="btn-modal btn-modal-primary" onclick="fecharModais()">Entendi</button>
+    </div>
+  </div>
+</div>
+
+
 <!-- ══ DRAWER ══════════════════════════════════════════════════ -->
 <div id="drawer">
   <div class="drw-header">
@@ -581,7 +676,7 @@
         <div class="d-sec">
           <div class="d-sec-head">
             <h4>Funil MVT</h4>
-            <button class="btn-exp"><i data-lucide="download" style="width:13px;height:13px"></i> Export</button>
+            <button class="btn-exp" onclick="exportarTasksAtual()" title="Baixar TASKS.md deste projeto"><i data-lucide="download" style="width:13px;height:13px"></i> Export TASKS</button>
           </div>
           <div class="funil-list" id="funil-list"></div>
         </div>
@@ -1194,6 +1289,46 @@ function renderTasksDrawer(tasksMd) {
   document.getElementById('tasks-done').innerHTML  = groups.done.length  ? groups.done.map(renderTask).join('')  : empty('Nenhuma concluída nos últimos 7 dias');
 }
 
+// ── Modais ───────────────────────────────────────────────────
+function abrirModalNovaTask() {
+  // Atualiza data do template pro hoje
+  const hoje = new Date();
+  const iso = `${hoje.getFullYear()}-${String(hoje.getMonth()+1).padStart(2,'0')}-${String(hoje.getDate()).padStart(2,'0')}`;
+  const tpl = document.getElementById('task-template');
+  if (tpl) tpl.textContent = `- [ ] Texto da task !alta @${iso} #campanha`;
+  document.getElementById('modal-task').classList.add('open');
+}
+function abrirModalAjuda() {
+  document.getElementById('modal-help').classList.add('open');
+}
+function fecharModais() {
+  document.querySelectorAll('.modal-backdrop').forEach(m => m.classList.remove('open'));
+}
+function copiarTemplate() {
+  const tpl = document.getElementById('task-template').textContent;
+  navigator.clipboard.writeText(tpl).then(() => {
+    const btn = event.target;
+    const orig = btn.textContent;
+    btn.textContent = '✅ Copiado!';
+    setTimeout(() => btn.textContent = orig, 1500);
+  });
+}
+
+// ── Export TASKS.md do projeto aberto ────────────────────────
+function exportarTasksAtual() {
+  if (!currentProject || !currentProject.rawFiles.tasks) {
+    alert('Nenhum TASKS.md disponível pra este projeto. Crie o arquivo no vault primeiro.');
+    return;
+  }
+  const blob = new Blob([currentProject.rawFiles.tasks], { type: 'text/markdown;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `${currentProject.id}-TASKS.md`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
 function renderHoje(items) {
   const grid = document.getElementById('hoje-grid');
   const total = document.getElementById('hoje-total');
@@ -1474,7 +1609,9 @@ document.addEventListener('DOMContentLoaded', () => {
   loadAllData(); // busca dados do GitHub e re-renderiza
 });
 
-document.addEventListener('keydown', e => { if (e.key === 'Escape') closeDrawer(); });
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') { closeDrawer(); fecharModais(); }
+});
 </script>
 </body>
 </html>

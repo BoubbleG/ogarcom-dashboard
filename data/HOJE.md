@@ -1,10 +1,10 @@
 ---
 type: hoje
-date: 2026-04-29
+date: 2026-04-30
 gerado: automatico
 ---
 
-# Hoje — 29/04/2026
+# Hoje — 30/04/2026
 
 > Gerado automaticamente a partir dos TASKS.md de cada projeto.
 > Não editar à mão — alterações se perdem na próxima sincronização.
